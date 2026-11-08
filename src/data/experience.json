@@ -1,0 +1,36 @@
+[
+  {
+    "$comment": "EXEMPLO — substitua por experiências reais e remova \"demo\": true. Datas no formato AAAA-MM; \"end\": null significa emprego atual.",
+    "id": "experiencia-exemplo-1",
+    "demo": true,
+    "role": { "pt": "Cargo a informar — Dados e Integrações", "en": "Role to be provided — Data & Integrations" },
+    "organization": "Organização a informar",
+    "location": "",
+    "start": "2022-01",
+    "end": null,
+    "summary": {
+      "pt": "Descreva aqui o escopo da sua atuação: times, produtos, responsabilidades e contexto.",
+      "en": "Describe your scope here: teams, products, responsibilities and context."
+    },
+    "highlights": [
+      { "pt": "Liste uma entrega relevante, sem dados confidenciais.", "en": "List a relevant achievement without confidential data." },
+      { "pt": "Inclua resultados apenas se puderem ser divulgados.", "en": "Include results only if they can be disclosed." }
+    ],
+    "technologies": ["SQL", "Python", "BigQuery", "APIs"]
+  },
+  {
+    "id": "experiencia-exemplo-2",
+    "demo": true,
+    "role": { "pt": "Cargo anterior a informar", "en": "Previous role to be provided" },
+    "organization": "Organização a informar",
+    "location": "",
+    "start": "2019-01",
+    "end": "2021-12",
+    "summary": {
+      "pt": "Experiência anterior — descreva atividades em BI, engenharia ou desenvolvimento.",
+      "en": "Previous experience — describe BI, engineering or development activities."
+    },
+    "highlights": [],
+    "technologies": ["Power BI", "SQL Server"]
+  }
+]

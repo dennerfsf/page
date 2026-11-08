@@ -1,0 +1,83 @@
+---
+import Icon from './Icon.astro';
+import Logo from './Logo.astro';
+import SocialLinks from './SocialLinks.astro';
+import { NAV, profile } from '../data/site';
+import { l } from '../i18n/format';
+import { t, type Lang } from '../i18n/ui';
+import { withBase } from '../lib/url';
+
+interface Props { lang?: Lang }
+const { lang = 'pt-BR' } = Astro.props;
+const tr = t(lang);
+const year = new Date().getFullYear();
+---
+
+<footer data-site-footer class="mt-24 border-t border-border bg-surface/60">
+  <div class="container-site grid gap-10 py-14 md:grid-cols-[1.5fr_1fr_1fr_1fr]">
+    <div class="space-y-4">
+      <Logo />
+      <p class="max-w-sm text-sm leading-relaxed text-muted">{l(profile.headline, lang)}</p>
+      <SocialLinks />
+    </div>
+
+    <nav aria-labelledby="footer-nav">
+      <h2 id="footer-nav" class="mb-3 font-display text-sm font-semibold text-fg">Navegação</h2>
+      <ul class="space-y-2 text-sm">
+        {
+          NAV.slice(0, 4).map((item) => (
+            <li>
+              <a class="text-muted hover:text-link" href={withBase(item.href)}>{tr(item.key)}</a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <nav aria-labelledby="footer-content">
+      <h2 id="footer-content" class="mb-3 font-display text-sm font-semibold text-fg">Conteúdo</h2>
+      <ul class="space-y-2 text-sm">
+        {
+          NAV.slice(4).map((item) => (
+            <li>
+              <a class="text-muted hover:text-link" href={withBase(item.href)}>{tr(item.key)}</a>
+            </li>
+          ))
+        }
+        <li><a class="text-muted hover:text-link" href={withBase('/busca/')}>{tr('nav.search')}</a></li>
+      </ul>
+    </nav>
+
+    <div>
+      <h2 class="mb-3 font-display text-sm font-semibold text-fg">Assine e acompanhe</h2>
+      <ul class="space-y-2 text-sm">
+        <li>
+          <a class="inline-flex items-center gap-2 text-muted hover:text-link" href={withBase('/rss.xml')}>
+            <Icon name="rss" size={16} /> Feed RSS do blog
+          </a>
+        </li>
+        {
+          profile.email && (
+            <li>
+              <a class="inline-flex items-center gap-2 text-muted hover:text-link" href={`mailto:${profile.email}`}>
+                <Icon name="mail" size={16} /> {profile.email}
+              </a>
+            </li>
+          )
+        }
+        <li>
+          <a class="inline-flex items-center gap-2 text-muted hover:text-link" href={withBase('/en/resume/')} hreflang="en" lang="en">
+            <Icon name="globe" size={16} /> Resume in English
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="border-t border-border">
+    <div class="container-site flex flex-col gap-2 py-6 text-xs text-muted sm:flex-row sm:items-center sm:justify-between">
+      <p>© {year} {profile.name}. {tr('footer.rights')}</p>
+      <p>{tr('footer.built')}</p>
+    </div>
+  </div>
+</footer>

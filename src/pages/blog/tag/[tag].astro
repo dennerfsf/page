@@ -1,0 +1,32 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import BlogCard from '../../../components/BlogCard.astro';
+import PageHeader from '../../../components/PageHeader.astro';
+import { getPosts, tagIndex, type Post } from '../../../lib/content';
+import { slugify } from '../../../lib/taxonomy';
+
+export async function getStaticPaths() {
+  const posts = await getPosts();
+  return tagIndex(posts).map(({ tag, slug }) => ({
+    params: { tag: slug },
+    props: { tag, posts: posts.filter((p) => p.data.tags.some((t) => slugify(t) === slug)) },
+  }));
+}
+
+interface Props { tag: string; posts: Post[] }
+const { tag, posts } = Astro.props;
+---
+
+<BaseLayout
+  title={`#${tag} — Blog`}
+  description={`Publicações marcadas com a tag ${tag}.`}
+  crumbs={[
+    { label: 'Blog', href: '/blog/' },
+    { label: `#${tag}`, href: `/blog/tag/${slugify(tag)}/` },
+  ]}
+>
+  <PageHeader eyebrow="Tag" title={`#${tag}`} description={`${posts.length} ${posts.length === 1 ? 'publicação' : 'publicações'} com esta tag.`} />
+  <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    {posts.map((post) => <BlogCard post={post} headingLevel="h2" />)}
+  </div>
+</BaseLayout>

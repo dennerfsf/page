@@ -1,0 +1,97 @@
+---
+import Icon from './Icon.astro';
+import Logo from './Logo.astro';
+import ThemeToggle from './ThemeToggle.astro';
+import { NAV } from '../data/site';
+import { t, type Lang } from '../i18n/ui';
+import { isActivePath, withBase } from '../lib/url';
+
+interface Props { lang?: Lang }
+const { lang = 'pt-BR' } = Astro.props;
+const tr = t(lang);
+const current = Astro.url.pathname;
+---
+
+<header
+  data-site-header
+  class="sticky top-0 z-40 border-b border-border/70 bg-bg/80 backdrop-blur-md supports-[backdrop-filter]:bg-bg/65"
+>
+  <div class="container-site flex h-16 items-center justify-between gap-4">
+    <Logo />
+
+    <nav aria-label={tr('nav.main')} class="hidden xl:block">
+      <ul class="flex items-center gap-1">
+        {
+          NAV.map((item) => {
+            const active = isActivePath(current, item.href);
+            return (
+              <li>
+                <a
+                  href={withBase(item.href)}
+                  aria-current={active ? 'page' : undefined}
+                  class:list={[
+                    'relative rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+                    active ? 'text-fg' : 'text-muted hover:text-fg',
+                    active && 'after:absolute after:inset-x-3 after:-bottom-[1px] after:h-0.5 after:rounded-full after:bg-accent-strong',
+                  ]}
+                >
+                  {tr(item.key)}
+                </a>
+              </li>
+            );
+          })
+        }
+      </ul>
+    </nav>
+
+    <div class="flex items-center gap-1">
+      <a
+        href={withBase('/busca/')}
+        class="inline-flex size-11 items-center justify-center rounded-xl text-muted transition-colors hover:bg-surface-2 hover:text-fg"
+        aria-label={tr('nav.search')}
+        title={tr('nav.search')}
+      >
+        <Icon name="search" />
+      </a>
+      <ThemeToggle lang={lang} />
+      <button
+        type="button"
+        class="group inline-flex size-11 items-center justify-center rounded-xl text-muted transition-colors hover:bg-surface-2 hover:text-fg xl:hidden"
+        data-menu-toggle
+        aria-controls="mobile-menu"
+        aria-expanded="false"
+        aria-label={tr('nav.menu')}
+        data-label-open={tr('nav.menu')}
+        data-label-close={tr('nav.close')}
+      >
+        <Icon name="menu" class="block group-aria-expanded:hidden" />
+        <Icon name="x" class="hidden group-aria-expanded:block" />
+      </button>
+    </div>
+  </div>
+
+  <nav id="mobile-menu" aria-label={tr('nav.main')} class="border-t border-border bg-bg xl:hidden" hidden>
+    <ul class="container-site grid gap-1 py-3">
+      {
+        NAV.map((item) => {
+          const active = isActivePath(current, item.href);
+          return (
+            <li>
+              <a
+                href={withBase(item.href)}
+                aria-current={active ? 'page' : undefined}
+                class:list={[
+                  'flex items-center justify-between rounded-xl px-4 py-3 text-base font-medium',
+                  active ? 'bg-surface-2 text-fg' : 'text-muted hover:bg-surface-2 hover:text-fg',
+                ]}
+              >
+                {tr(item.key)}
+                <Icon name="chevron-right" size={18} />
+              </a>
+            </li>
+          );
+        })
+      }
+    </ul>
+  </nav>
+</header>

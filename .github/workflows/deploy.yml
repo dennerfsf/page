@@ -1,0 +1,80 @@
+name: Build e publicação no GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Uma publicação por vez; não cancela uma publicação em andamento.
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Validar e compilar
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Configurar Pages (descobre endereço e base path)
+        id: pages
+        uses: actions/configure-pages@v5
+        # Em PRs de forks o Pages pode não estar acessível; os padrões do astro.config.mjs são usados.
+        continue-on-error: ${{ github.event_name == 'pull_request' }}
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Verificar tipos
+        run: npm run check
+
+      - name: Build (Astro + índice de busca + PDF do currículo)
+        run: npm run build
+        env:
+          # Variáveis do repositório (Settings → Secrets and variables → Actions → Variables)
+          # têm prioridade; caso contrário, usa o que o GitHub Pages informa.
+          SITE_URL: ${{ vars.SITE_URL || steps.pages.outputs.origin }}
+          BASE_PATH: ${{ vars.BASE_PATH != '' && vars.BASE_PATH || steps.pages.outputs.base_path }}
+          CHROME_PATH: /usr/bin/google-chrome
+
+      - name: Verificar links internos
+        run: npm run test:links
+
+      - name: Testes no navegador
+        run: npm run test:e2e
+        env:
+          CHROME_PATH: /usr/bin/google-chrome
+
+      - name: Enviar artefato do site
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    name: Publicar
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Publicar no GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

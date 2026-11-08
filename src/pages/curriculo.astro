@@ -1,0 +1,21 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Resume from '../components/Resume.astro';
+import { profile } from '../data/site';
+import { CV_PAGES } from '../lib/cv';
+import { personLd } from '../lib/seo';
+---
+
+<BaseLayout
+  title="Currículo"
+  description={`Currículo de ${profile.name}: experiência, formação, competências, publicações e projetos.`}
+  type="profile"
+  crumbs={[{ label: 'Currículo', href: '/curriculo/' }]}
+  alternates={[
+    { lang: 'pt-BR', href: CV_PAGES['pt-BR'].page },
+    { lang: 'en', href: CV_PAGES.en.page },
+  ]}
+  schema={[{ '@type': 'ProfilePage', mainEntity: personLd(Astro.site) }]}
+>
+  <Resume lang="pt-BR" />
+</BaseLayout>

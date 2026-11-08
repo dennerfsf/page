@@ -1,0 +1,43 @@
+---
+import Icon from './Icon.astro';
+import { socialLinks, type SocialKey } from '../data/site';
+
+interface Props {
+  only?: SocialKey[];
+  /** "icons": apenas ícones; "labels": ícone + nome. */
+  variant?: 'icons' | 'labels';
+  class?: string;
+}
+const { only, variant = 'icons', class: className } = Astro.props;
+const links = socialLinks(only);
+---
+
+{
+  links.length > 0 && (
+    <ul class:list={['flex flex-wrap items-center gap-2', className]}>
+      {links.map((s) => (
+        <li>
+          <a
+            href={s.url}
+            target="_blank"
+            rel="me noopener noreferrer"
+            class:list={[
+              'inline-flex items-center gap-2 rounded-xl border border-border text-muted transition-colors hover:border-link hover:text-link',
+              variant === 'icons' ? 'size-11 justify-center' : 'min-h-11 px-3.5 py-2 text-sm font-medium',
+            ]}
+            aria-label={variant === 'icons' ? `${s.label} (abre em nova aba)` : undefined}
+            title={s.label}
+          >
+            <Icon name={s.icon} size={18} />
+            {variant === 'labels' && (
+              <>
+                <span>{s.label}</span>
+                <span class="sr-only">(abre em nova aba)</span>
+              </>
+            )}
+          </a>
+        </li>
+      ))}
+    </ul>
+  )
+}

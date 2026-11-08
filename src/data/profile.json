@@ -1,0 +1,105 @@
+{
+  "$comment": "Dados pessoais centrais. Campos vazios (\"\") são ocultados automaticamente no site. Textos aceitam { \"pt\": \"...\", \"en\": \"...\" }.",
+  "name": "Denner Ferreira",
+  "initials": "DF",
+  "headline": {
+    "pt": "Especialista em Dados, Integrações e Inteligência Artificial",
+    "en": "Data, Integration & Artificial Intelligence Specialist"
+  },
+  "summary": {
+    "pt": "Especialista em Dados, Integrações e Inteligência Artificial, com formação em Engenharia Elétrica e atuação em arquitetura de dados, governança, desenvolvimento de soluções analíticas e transformação digital.",
+    "en": "Data, Integration and Artificial Intelligence specialist with a background in Electrical Engineering, working on data architecture, governance, analytics solutions and digital transformation."
+  },
+  "bio": [
+    {
+      "pt": "Tenho formação em Engenharia Elétrica e atuo na interseção entre dados, integração de sistemas e inteligência artificial — da arquitetura e governança de dados ao desenvolvimento de soluções analíticas que apoiam a transformação digital.",
+      "en": "I hold a background in Electrical Engineering and work at the intersection of data, systems integration and artificial intelligence — from data architecture and governance to analytics solutions that support digital transformation."
+    },
+    {
+      "pt": "Este espaço reúne meus projetos, publicações e artigos. Edite este texto em src/data/profile.json para contar sua trajetória com suas próprias palavras.",
+      "en": "This space gathers my projects, publications and articles. Edit this text in src/data/profile.json to tell your story in your own words."
+    }
+  ],
+  "vision": {
+    "pt": "Construir soluções de dados e IA confiáveis, bem governadas e que gerem valor mensurável — conectando engenharia, ciência e negócio.",
+    "en": "Build reliable, well-governed data and AI solutions that deliver measurable value — connecting engineering, science and business."
+  },
+  "photo": "",
+  "photoAlt": "Fotografia de Denner Ferreira",
+  "email": "",
+  "location": "",
+  "availability": {
+    "pt": "Aberto a conversas sobre projetos de dados, integrações e IA.",
+    "en": "Open to conversations about data, integration and AI projects."
+  },
+  "social": {
+    "github": "https://github.com/dennerfsf",
+    "linkedin": "",
+    "orcid": "",
+    "scholar": "",
+    "researchgate": "",
+    "lattes": "",
+    "x": ""
+  },
+  "expertise": [
+    {
+      "icon": "database",
+      "title": { "pt": "Arquitetura e Engenharia de Dados", "en": "Data Architecture & Engineering" },
+      "text": {
+        "pt": "Modelagem, pipelines, plataformas analíticas e arquiteturas orientadas a domínio, como Data Mesh.",
+        "en": "Modeling, pipelines, analytics platforms and domain-oriented architectures such as Data Mesh."
+      }
+    },
+    {
+      "icon": "shield",
+      "title": { "pt": "Governança de Dados", "en": "Data Governance" },
+      "text": {
+        "pt": "Qualidade, catálogo, linhagem, segurança e políticas de uso responsável de dados.",
+        "en": "Quality, catalog, lineage, security and responsible data-use policies."
+      }
+    },
+    {
+      "icon": "plug",
+      "title": { "pt": "Integrações e APIs", "en": "Integrations & APIs" },
+      "text": {
+        "pt": "Integração de sistemas, APIs e microsserviços para conectar operações e dados.",
+        "en": "Systems integration, APIs and microservices that connect operations and data."
+      }
+    },
+    {
+      "icon": "sparkles",
+      "title": { "pt": "Inteligência Artificial", "en": "Artificial Intelligence" },
+      "text": {
+        "pt": "IA generativa, agentes, integração de LLMs e automação inteligente de processos.",
+        "en": "Generative AI, agents, LLM integration and intelligent process automation."
+      }
+    },
+    {
+      "icon": "chart",
+      "title": { "pt": "Business Intelligence", "en": "Business Intelligence" },
+      "text": {
+        "pt": "Soluções analíticas e painéis que transformam dados em decisões.",
+        "en": "Analytics solutions and dashboards that turn data into decisions."
+      }
+    },
+    {
+      "icon": "cpu",
+      "title": { "pt": "Engenharia e Transformação Digital", "en": "Engineering & Digital Transformation" },
+      "text": {
+        "pt": "Base em Engenharia Elétrica aplicada a sistemas, automação e inovação tecnológica.",
+        "en": "Electrical Engineering background applied to systems, automation and innovation."
+      }
+    }
+  ],
+  "researchAreas": [
+    { "pt": "Arquitetura e governança de dados", "en": "Data architecture and governance" },
+    { "pt": "Inteligência artificial aplicada", "en": "Applied artificial intelligence" },
+    { "pt": "Integração de sistemas", "en": "Systems integration" }
+  ],
+  "interests": [
+    { "pt": "Data Mesh e produtos de dados", "en": "Data Mesh and data products" },
+    { "pt": "Agentes de IA e LLMs", "en": "AI agents and LLMs" },
+    { "pt": "IoT e sistemas embarcados", "en": "IoT and embedded systems" },
+    { "pt": "Ciência aberta", "en": "Open science" }
+  ]
+}

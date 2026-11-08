@@ -1,0 +1,93 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+import PageHeader from '../components/PageHeader.astro';
+---
+
+<BaseLayout
+  title="Buscar"
+  description="Busque em artigos, projetos, publicações e páginas do site."
+  noindex
+  searchable={false}
+  crumbs={[{ label: 'Buscar', href: '/busca/' }]}
+>
+  <PageHeader eyebrow="Busca" title="Buscar no site" description="Pesquise em artigos, projetos, publicações e demais páginas. A busca funciona sem servidor: o índice é gerado no build." />
+
+  <form role="search" class="mx-auto max-w-3xl" data-search-form action="">
+    <label for="busca" class="sr-only">Termo de busca</label>
+    <div class="relative">
+      <Icon name="search" size={20} class="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-muted" />
+      <input
+        id="busca"
+        name="q"
+        type="search"
+        autocomplete="off"
+        placeholder="Digite pelo menos 2 caracteres…"
+        class="h-14 w-full rounded-2xl border border-border-strong bg-surface pl-12 pr-4 text-lg text-fg placeholder:text-muted focus:border-link focus:outline-none"
+      />
+    </div>
+  </form>
+
+  <div class="mx-auto mt-8 max-w-3xl">
+    <p class="mb-4 text-sm text-muted" role="status" aria-live="polite" data-search-status></p>
+    <ol class="space-y-4" data-search-results></ol>
+  </div>
+</BaseLayout>
+
+<script>
+  import { search } from '../scripts/pagefind';
+
+  const form = document.querySelector<HTMLFormElement>('[data-search-form]')!;
+  const input = form.querySelector<HTMLInputElement>('input')!;
+  const status = document.querySelector<HTMLElement>('[data-search-status]')!;
+  const list = document.querySelector<HTMLOListElement>('[data-search-results]')!;
+  let timer: number | undefined;
+  let seq = 0;
+
+  const escape = (s: string) => s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
+  // Pagefind devolve trechos com <mark>; mantemos apenas essa marcação.
+  const safeExcerpt = (s: string) => escape(s).replace(/&lt;mark&gt;/g, '<mark>').replace(/&lt;\/mark&gt;/g, '</mark>');
+
+  async function run() {
+    const term = input.value.trim();
+    const id = ++seq;
+    const url = new URL(location.href);
+    term ? url.searchParams.set('q', term) : url.searchParams.delete('q');
+    history.replaceState(null, '', url);
+
+    if (term.length < 2) {
+      list.innerHTML = '';
+      status.textContent = '';
+      return;
+    }
+    status.textContent = 'Buscando…';
+    const hits = await search(term);
+    if (id !== seq) return;
+    if (hits === null) {
+      status.textContent = 'O índice de busca é gerado no build de produção (npm run build && npm run preview).';
+      return;
+    }
+    status.textContent = hits.length ? `${hits.length} resultado(s) para “${term}”` : `Nenhum resultado para “${term}”.`;
+    list.innerHTML = hits
+      .map(
+        (h) => `<li><a href="${escape(h.url)}" class="card card-hover block p-5">
+          <span class="block font-display text-lg font-semibold text-fg">${escape(h.title)}</span>
+          <span class="mt-1 block text-xs text-muted">${escape(h.url)}</span>
+          <span class="mt-2 block text-sm leading-relaxed text-fg-soft [&_mark]:rounded [&_mark]:bg-primary/25 [&_mark]:px-0.5 [&_mark]:text-fg">${safeExcerpt(h.excerpt)}</span>
+        </a></li>`,
+      )
+      .join('');
+  }
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    run();
+  });
+  input.addEventListener('input', () => {
+    window.clearTimeout(timer);
+    timer = window.setTimeout(run, 200);
+  });
+  input.value = new URLSearchParams(location.search).get('q') ?? '';
+  if (input.value) run();
+  else input.focus();
+</script>

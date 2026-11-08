@@ -1,0 +1,20 @@
+---
+import type { MarkdownHeading } from 'astro';
+interface Props { headings: MarkdownHeading[] }
+const items = Astro.props.headings.filter((h) => h.depth === 2 || h.depth === 3);
+---
+
+{
+  items.length > 1 && (
+    <nav aria-labelledby="toc-title" class="text-sm" data-pagefind-ignore>
+      <h2 id="toc-title" class="mb-3 font-display text-sm font-semibold uppercase tracking-wide text-fg">Neste artigo</h2>
+      <ol class="space-y-2 border-l border-border">
+        {items.map((h) => (
+          <li class:list={[h.depth === 3 ? 'pl-7' : 'pl-4']}>
+            <a href={`#${h.slug}`} class="-ml-px block border-l border-transparent pl-0 text-muted hover:text-link">{h.text}</a>
+          </li>
+        ))}
+      </ol>
+    </nav>
+  )
+}

@@ -1,0 +1,31 @@
+---
+import Icon from './Icon.astro';
+import type { Crumb } from '../lib/seo';
+import { withBase } from '../lib/url';
+import { t, type Lang } from '../i18n/ui';
+
+interface Props { items: Crumb[]; lang?: Lang }
+const { items, lang } = Astro.props;
+---
+
+<nav aria-label={t(lang)('breadcrumb.label')} class="no-print mb-6 text-sm" data-pagefind-ignore>
+  <ol class="flex flex-wrap items-center gap-1.5 text-muted">
+    {
+      items.map((c, i) => {
+        const last = i === items.length - 1;
+        return (
+          <li class="inline-flex items-center gap-1.5">
+            {last ? (
+              <span aria-current="page" class="max-w-[28ch] truncate text-fg-soft">{c.label}</span>
+            ) : (
+              <>
+                <a href={withBase(c.href)} class="hover:text-link hover:underline">{c.label}</a>
+                <Icon name="chevron-right" size={14} class="opacity-60" />
+              </>
+            )}
+          </li>
+        );
+      })
+    }
+  </ol>
+</nav>

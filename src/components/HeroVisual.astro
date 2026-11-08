@@ -1,0 +1,68 @@
+---
+/**
+ * Ilustração do hero: um grafo de dados animado de forma discreta.
+ * Se houver foto em profile.json, ela é exibida no centro.
+ */
+import { profile } from '../data/site';
+import { withBase } from '../lib/url';
+const nodes = [
+  { x: 60, y: 90, l: 'SQL' },
+  { x: 330, y: 60, l: 'API' },
+  { x: 380, y: 250, l: 'LLM' },
+  { x: 70, y: 300, l: 'BI' },
+  { x: 220, y: 380, l: 'IoT' },
+  { x: 210, y: 30, l: 'ETL' },
+];
+---
+
+<div class="relative mx-auto aspect-square w-full max-w-[26rem]" aria-hidden="true">
+  <div class="absolute inset-6 rounded-full bg-gradient-to-br from-[#2563EB]/30 to-[#06B6D4]/20 blur-3xl"></div>
+  <svg viewBox="0 0 440 440" class="relative size-full">
+    <defs>
+      <linearGradient id="hv-line" x1="0" x2="1">
+        <stop offset="0" stop-color="#2563EB" />
+        <stop offset="1" stop-color="#06B6D4" />
+      </linearGradient>
+      <radialGradient id="hv-core" cx=".5" cy=".5" r=".5">
+        <stop offset="0" stop-color="#2563EB" stop-opacity=".35" />
+        <stop offset="1" stop-color="#2563EB" stop-opacity="0" />
+      </radialGradient>
+    </defs>
+    <circle cx="220" cy="210" r="190" fill="none" stroke="var(--border-strong)" stroke-dasharray="2 8" class="hv-spin" />
+    <circle cx="220" cy="210" r="140" fill="none" stroke="var(--border)" />
+    <circle cx="220" cy="210" r="120" fill="url(#hv-core)" />
+    {
+      nodes.map((n, i) => (
+        <g>
+          <line x1="220" y1="210" x2={n.x} y2={n.y} stroke="url(#hv-line)" stroke-opacity=".55" stroke-width="1.25" class="hv-flow" style={`animation-delay:${i * 0.4}s`} />
+          <circle cx={n.x} cy={n.y} r="22" fill="var(--surface)" stroke="var(--border-strong)" />
+          <text x={n.x} y={n.y + 4} text-anchor="middle" font-family="var(--font-mono), monospace" font-size="11" font-weight="500" fill="var(--accent)">{n.l}</text>
+        </g>
+      ))
+    }
+  </svg>
+  <div class="absolute left-1/2 top-[47.7%] grid size-36 -translate-x-1/2 -translate-y-1/2 place-items-center overflow-hidden rounded-full border border-border-strong bg-surface shadow-2xl shadow-blue-900/30">
+    {
+      profile.photo ? (
+        <img src={withBase(profile.photo)} alt="" width="144" height="144" class="size-full object-cover" fetchpriority="high" />
+      ) : (
+        <span class="text-gradient font-display text-5xl font-bold">{profile.initials}</span>
+      )
+    }
+  </div>
+</div>
+
+<style>
+  @media (prefers-reduced-motion: no-preference) {
+    .hv-spin {
+      transform-origin: 220px 210px;
+      animation: hv-spin 60s linear infinite;
+    }
+    .hv-flow {
+      stroke-dasharray: 6 6;
+      animation: hv-flow 2.4s linear infinite;
+    }
+  }
+  @keyframes hv-spin { to { transform: rotate(360deg); } }
+  @keyframes hv-flow { to { stroke-dashoffset: -24; } }
+</style>

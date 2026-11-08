@@ -1,0 +1,15 @@
+[
+  {
+    "$comment": "A área (Engenharia Elétrica) consta da apresentação profissional; instituição e período precisam ser confirmados. Remova \"demo\": true após preencher.",
+    "id": "graduacao-engenharia-eletrica",
+    "demo": true,
+    "degree": { "pt": "Graduação em Engenharia Elétrica", "en": "Degree in Electrical Engineering" },
+    "institution": "Instituição a informar",
+    "start": "",
+    "end": "",
+    "description": {
+      "pt": "Informe instituição, período e, se desejar, o tema do trabalho de conclusão.",
+      "en": "Provide institution, dates and, optionally, the final project topic."
+    }
+  }
+]

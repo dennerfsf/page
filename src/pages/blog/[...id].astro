@@ -1,0 +1,150 @@
+---
+import { render } from 'astro:content';
+import { getImage } from 'astro:assets';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import BlogCard from '../../components/BlogCard.astro';
+import Cover from '../../components/Cover.astro';
+import DemoNotice from '../../components/DemoNotice.astro';
+import Icon from '../../components/Icon.astro';
+import ShareButtons from '../../components/ShareButtons.astro';
+import TableOfContents from '../../components/TableOfContents.astro';
+import { profile } from '../../data/site';
+import { formatDate } from '../../i18n/format';
+import { getPosts, readingTime, relatedPosts, type Post } from '../../lib/content';
+import { blogPostingLd } from '../../lib/seo';
+import { slugify } from '../../lib/taxonomy';
+import { absoluteUrl, withBase } from '../../lib/url';
+
+export async function getStaticPaths() {
+  const posts = await getPosts();
+  return posts.map((post) => ({ params: { id: post.id }, props: { post, all: posts } }));
+}
+
+interface Props { post: Post; all: Post[] }
+const { post, all } = Astro.props;
+const { title, description, date, updated, category, tags, cover, coverAlt, demo, author } = post.data;
+const { Content, headings } = await render(post);
+const minutes = readingTime(post.body);
+const related = relatedPosts(post, all);
+const url = absoluteUrl(`/blog/${post.id}/`, Astro.site);
+
+let ogImage: string | undefined;
+if (cover && cover.format !== 'svg') {
+  const img = await getImage({ src: cover, width: 1200, height: 630, fit: 'cover', format: 'jpg' });
+  ogImage = img.src;
+}
+
+const index = all.findIndex((p) => p.id === post.id);
+const newer = index > 0 ? all[index - 1] : undefined;
+const older = index < all.length - 1 ? all[index + 1] : undefined;
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  type="article"
+  image={ogImage}
+  imageAlt={coverAlt || undefined}
+  publishedTime={date}
+  modifiedTime={updated}
+  tags={tags}
+  crumbs={[
+    { label: 'Blog', href: '/blog/' },
+    { label: category, href: `/blog/categoria/${slugify(category)}/` },
+    { label: title, href: `/blog/${post.id}/` },
+  ]}
+  schema={[blogPostingLd({ title, description, url, date, updated, image: ogImage && absoluteUrl(ogImage, Astro.site), tags, category }, Astro.site)]}
+>
+  <div
+    slot="top"
+    data-reading-progress
+    role="progressbar"
+    aria-label="Progresso de leitura"
+    aria-valuemin="0"
+    aria-valuemax="100"
+    aria-valuenow="0"
+    class="fixed inset-x-0 top-0 z-50 h-1 origin-left scale-x-0 bg-gradient-to-r from-[#2563EB] to-[#06B6D4]"
+  >
+  </div>
+
+  <article>
+    <header class="mx-auto mb-10 max-w-3xl text-center">
+      <a href={withBase(`/blog/categoria/${slugify(category)}/`)} class="eyebrow hover:underline">{category}</a>
+      <h1 class="mt-3 font-display text-3xl font-bold leading-tight tracking-tight text-fg sm:text-5xl">{title}</h1>
+      <p class="mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-muted">{description}</p>
+      <div class="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm text-muted">
+        <span>{author ?? profile.name}</span>
+        <span class="inline-flex items-center gap-1.5"><Icon name="calendar" size={15} /><time datetime={date.toISOString()}>{formatDate(date)}</time></span>
+        {updated && <span>Atualizado em <time datetime={updated.toISOString()}>{formatDate(updated)}</time></span>}
+        <span class="inline-flex items-center gap-1.5"><Icon name="clock" size={15} />{minutes} min de leitura</span>
+      </div>
+    </header>
+
+    <Cover image={cover} alt={coverAlt} seed={post.id} label={category} eager class="mx-auto mb-12 max-w-5xl rounded-2xl border border-border" widths={[640, 960, 1280]} sizes="(min-width: 1024px) 64rem, 100vw" />
+
+    <div class="mx-auto grid max-w-5xl gap-12 lg:grid-cols-[minmax(0,1fr)_14rem]">
+      <div class="min-w-0">
+        {demo && <div class="mb-8"><DemoNotice text="Artigo demonstrativo, criado para validar o layout do blog. Revise, adapte ou substitua antes de divulgar." /></div>}
+        <div data-article-body class="prose prose-site prose-lg max-w-none">
+          <Content />
+        </div>
+
+        {
+          tags.length > 0 && (
+            <ul class="mt-12 flex flex-wrap gap-2" aria-label="Tags">
+              {tags.map((tag) => (
+                <li>
+                  <a href={withBase(`/blog/tag/${slugify(tag)}/`)} class="chip hover:border-link hover:text-link">
+                    <Icon name="hash" size={13} />{tag}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )
+        }
+
+        <div class="mt-8 border-t border-border pt-8">
+          <ShareButtons url={url} title={title} />
+        </div>
+
+        <!-- Comentários (futuro): Giscus/GitHub Discussions — ver SITE.giscus em src/data/site.ts -->
+
+        <nav aria-label="Navegação entre artigos" class="no-print mt-10 grid gap-4 sm:grid-cols-2" data-pagefind-ignore>
+          {
+            older ? (
+              <a href={withBase(`/blog/${older.id}/`)} class="card card-hover p-5">
+                <span class="flex items-center gap-1.5 text-xs text-muted"><Icon name="arrow-left" size={14} /> Anterior</span>
+                <span class="mt-1 block font-display font-semibold text-fg">{older.data.title}</span>
+              </a>
+            ) : <span />
+          }
+          {
+            newer && (
+              <a href={withBase(`/blog/${newer.id}/`)} class="card card-hover p-5 text-right">
+                <span class="flex items-center justify-end gap-1.5 text-xs text-muted">Próximo <Icon name="arrow-right" size={14} /></span>
+                <span class="mt-1 block font-display font-semibold text-fg">{newer.data.title}</span>
+              </a>
+            )
+          }
+        </nav>
+      </div>
+
+      <aside class="no-print hidden lg:block">
+        <div class="sticky top-24">
+          <TableOfContents headings={headings} />
+        </div>
+      </aside>
+    </div>
+  </article>
+
+  {
+    related.length > 0 && (
+      <section aria-labelledby="related-title" class="mx-auto mt-20 max-w-5xl" data-pagefind-ignore>
+        <h2 id="related-title" class="mb-6 font-display text-2xl font-bold text-fg">Artigos relacionados</h2>
+        <div class="grid gap-6 md:grid-cols-3">
+          {related.map((p) => <BlogCard post={p} />)}
+        </div>
+      </section>
+    )
+  }
+</BaseLayout>

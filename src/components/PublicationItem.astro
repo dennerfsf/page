@@ -1,0 +1,62 @@
+---
+import DemoBadge from './DemoBadge.astro';
+import Icon from './Icon.astro';
+import { formatAuthors, type Publication } from '../lib/content';
+import { PUBLICATION_TYPES } from '../lib/taxonomy';
+import { withBase } from '../lib/url';
+
+interface Props {
+  pub: Publication;
+  headingLevel?: 'h2' | 'h3';
+  compact?: boolean;
+}
+const { pub, headingLevel = 'h3', compact = false } = Astro.props;
+const { title, authors, year, venue, doi, url, pdf, type, keywords, demo } = pub.data;
+const H = headingLevel;
+const href = withBase(`/publicacoes/${pub.id}/`);
+---
+
+<article class="card card-hover print-break-avoid relative p-5 sm:p-6" data-publication data-type={type}>
+  <div class="mb-2 flex flex-wrap items-center gap-2 text-xs">
+    <span class="font-mono font-semibold text-accent">{year}</span>
+    <span class="text-muted">·</span>
+    <span class="font-medium uppercase tracking-wide text-muted">{PUBLICATION_TYPES[type]}</span>
+    <DemoBadge show={demo} />
+  </div>
+  <H class="font-display text-lg font-semibold leading-snug text-fg">
+    <a href={href} class="hover:text-link">{title}</a>
+  </H>
+  <p class="mt-1.5 text-sm text-fg-soft">{formatAuthors(authors)}</p>
+  <p class="mt-0.5 text-sm italic text-muted">{venue}</p>
+  {
+    !compact && (
+      <>
+        {keywords.length > 0 && (
+          <ul class="mt-3 flex flex-wrap gap-1.5" aria-label="Palavras-chave">
+            {keywords.map((k) => <li class="chip !text-xs">{k}</li>)}
+          </ul>
+        )}
+        <div class="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-sm font-medium">
+          <a href={href} class="inline-flex items-center gap-1.5 text-link hover:underline">
+            <Icon name="file-text" size={16} /> Resumo<span class="sr-only"> de {title}</span>
+          </a>
+          {doi && (
+            <a href={`https://doi.org/${doi}`} class="inline-flex items-center gap-1.5 text-link hover:underline" target="_blank" rel="noopener noreferrer">
+              <Icon name="link" size={16} /> DOI: {doi}
+            </a>
+          )}
+          {url && !doi && (
+            <a href={url} class="inline-flex items-center gap-1.5 text-link hover:underline" target="_blank" rel="noopener noreferrer">
+              <Icon name="external" size={16} /> Acessar publicação
+            </a>
+          )}
+          {pdf && (
+            <a href={withBase(pdf)} class="inline-flex items-center gap-1.5 text-link hover:underline" download>
+              <Icon name="download" size={16} /> PDF
+            </a>
+          )}
+        </div>
+      </>
+    )
+  }
+</article>

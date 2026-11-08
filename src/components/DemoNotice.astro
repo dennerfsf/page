@@ -1,0 +1,10 @@
+---
+import Icon from './Icon.astro';
+interface Props { text?: string }
+const { text = 'Este conteúdo é demonstrativo e serve para validar o layout. Revise ou substitua antes de divulgar o site.' } = Astro.props;
+---
+
+<div role="note" class="no-print flex items-start gap-3 rounded-xl border border-warning-fg/20 bg-warning-bg px-4 py-3 text-sm text-warning-fg">
+  <Icon name="info" size={18} class="mt-0.5 shrink-0" />
+  <p>{text}</p>
+</div>

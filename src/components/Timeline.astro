@@ -1,0 +1,85 @@
+---
+/**
+ * Linha do tempo acessível: lista ordenada semântica.
+ * Desktop: itens alternados em torno de um eixo central. Mobile: coluna única.
+ * Interação: filtro por tipo (botões com aria-pressed) e detalhes expansíveis (<details>).
+ */
+import DemoBadge from './DemoBadge.astro';
+import Icon from './Icon.astro';
+import { formatRange, l } from '../i18n/format';
+import type { TimelineItem } from '../lib/data';
+
+interface Props { items: TimelineItem[] }
+const { items } = Astro.props;
+const filters = [
+  { id: 'all', label: 'Tudo' },
+  { id: 'work', label: 'Profissional' },
+  { id: 'education', label: 'Acadêmica' },
+];
+---
+
+<div data-timeline>
+  <div class="no-print mb-8 flex flex-wrap gap-2" role="group" aria-label="Filtrar linha do tempo">
+    {
+      filters.map((f, i) => (
+        <button
+          type="button"
+          data-filter={f.id}
+          aria-pressed={i === 0 ? 'true' : 'false'}
+          class="chip min-h-10 cursor-pointer px-4 hover:border-link aria-pressed:border-transparent aria-pressed:bg-primary aria-pressed:text-white"
+        >
+          {f.label}
+        </button>
+      ))
+    }
+  </div>
+
+  <ol class="relative space-y-8 before:absolute before:bottom-0 before:left-[1.1rem] before:top-0 before:w-px before:bg-border md:before:left-1/2">
+    {
+      items.map((item, i) => (
+        <li data-kind={item.kind} class:list={['reveal relative pl-12 md:w-1/2 md:pl-0', i % 2 === 0 ? 'md:pr-12' : 'md:ml-auto md:pl-12']}>
+          <span
+            class:list={[
+              'absolute left-0 top-4 grid size-9 place-items-center rounded-full border border-border-strong bg-surface text-accent',
+              i % 2 === 0 ? 'md:left-auto md:-right-[1.125rem]' : 'md:-left-[1.125rem]',
+            ]}
+          >
+            <Icon name={item.kind === 'work' ? 'briefcase' : 'graduation-cap'} size={16} />
+          </span>
+          <details class="card group p-5 open:border-border-strong" open={i < 2}>
+            <summary class="flex cursor-pointer list-none items-start justify-between gap-3 [&::-webkit-details-marker]:hidden">
+              <div>
+                <p class="font-mono text-xs text-muted">
+                  {item.start ? formatRange(item.start, item.end ?? null) : 'Período a informar'} · {item.kind === 'work' ? 'Profissional' : 'Acadêmica'}
+                </p>
+                <h3 class="mt-1 flex flex-wrap items-center gap-2 font-display text-lg font-semibold text-fg">
+                  {l(item.title)} <DemoBadge show={item.demo} />
+                </h3>
+                <p class="text-sm font-medium text-accent">{item.org}</p>
+              </div>
+              <Icon name="chevron-down" size={18} class="mt-1 shrink-0 text-muted transition-transform group-open:rotate-180" />
+            </summary>
+            {item.text && <p class="mt-3 text-sm leading-relaxed text-fg-soft">{l(item.text)}</p>}
+            {(item.tags?.length ?? 0) > 0 && (
+              <ul class="mt-3 flex flex-wrap gap-1.5">{item.tags!.map((t) => <li class="chip !text-xs">{t}</li>)}</ul>
+            )}
+          </details>
+        </li>
+      ))
+    }
+  </ol>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-timeline]').forEach((root) => {
+    const buttons = root.querySelectorAll<HTMLButtonElement>('[data-filter]');
+    const items = root.querySelectorAll<HTMLElement>('[data-kind]');
+    buttons.forEach((btn) =>
+      btn.addEventListener('click', () => {
+        const f = btn.dataset.filter;
+        buttons.forEach((b) => b.setAttribute('aria-pressed', String(b === btn)));
+        items.forEach((it) => (it.hidden = f !== 'all' && it.dataset.kind !== f));
+      }),
+    );
+  });
+</script>

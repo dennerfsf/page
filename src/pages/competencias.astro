@@ -1,0 +1,79 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import DemoBadge from '../components/DemoBadge.astro';
+import Icon from '../components/Icon.astro';
+import PageHeader from '../components/PageHeader.astro';
+import { l, lList } from '../i18n/format';
+import { certifications, languages, skills } from '../lib/data';
+import { formatYearMonth } from '../i18n/format';
+---
+
+<BaseLayout
+  title="Tecnologias e competências"
+  description="Competências técnicas em dados e analytics, engenharia e arquitetura, desenvolvimento, infraestrutura e inteligência artificial."
+  crumbs={[{ label: 'Competências', href: '/competencias/' }]}
+>
+  <PageHeader
+    eyebrow="Competências"
+    title="Tecnologias e competências"
+    description="Ferramentas, práticas e áreas de conhecimento com as quais trabalho, agrupadas por domínio."
+  />
+
+  <div class="grid gap-6 md:grid-cols-2">
+    {
+      skills.map((g) => (
+        <section aria-labelledby={`sk-${g.id}`} class="card card-hover reveal p-6 sm:p-8">
+          <div class="mb-5 flex items-center gap-3">
+            <span class="grid size-12 place-items-center rounded-xl bg-gradient-to-br from-[#2563EB]/15 to-[#06B6D4]/15 text-accent">
+              <Icon name={g.icon} size={24} />
+            </span>
+            <h2 id={`sk-${g.id}`} class="font-display text-xl font-semibold text-fg">{l(g.title)}</h2>
+          </div>
+          <ul class="flex flex-wrap gap-2">
+            {lList(g.items).map((item) => (
+              <li class="rounded-lg border border-border bg-surface-2 px-3 py-1.5 text-sm font-medium text-fg-soft">{item}</li>
+            ))}
+          </ul>
+        </section>
+      ))
+    }
+  </div>
+
+  <div class="mt-12 grid gap-6 md:grid-cols-2">
+    <section aria-labelledby="certificacoes" class="card p-6">
+      <h2 id="certificacoes" class="mb-4 flex items-center gap-2 font-display text-lg font-semibold text-fg">
+        <Icon name="award" class="text-accent" /> Certificações e formação complementar
+      </h2>
+      <ul class="space-y-3">
+        {
+          certifications.map((c) => (
+            <li>
+              <p class="flex flex-wrap items-center gap-2 font-medium text-fg">
+                {c.url ? <a class="link" href={c.url} target="_blank" rel="noopener noreferrer">{l(c.name)}</a> : l(c.name)}
+                <DemoBadge show={c.demo} />
+              </p>
+              <p class="text-sm text-muted">{c.issuer}{c.date && ` · ${formatYearMonth(c.date)}`}</p>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+    <section aria-labelledby="idiomas" class="card p-6">
+      <h2 id="idiomas" class="mb-4 flex items-center gap-2 font-display text-lg font-semibold text-fg">
+        <Icon name="globe" class="text-accent" /> Idiomas
+      </h2>
+      <ul class="space-y-3">
+        {
+          languages.map((x) => (
+            <li class="flex flex-wrap items-center gap-2">
+              <span class="font-medium text-fg">{l(x.name)}</span>
+              <span class="text-sm text-muted">— {l(x.level)}</span>
+              <DemoBadge show={x.demo} />
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+  </div>
+  <p class="mt-8 text-sm text-muted">As competências são apresentadas sem percentuais de proficiência: a profundidade de cada uma pode ser vista nos projetos e no currículo.</p>
+</BaseLayout>

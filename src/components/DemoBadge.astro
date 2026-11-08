@@ -1,0 +1,22 @@
+---
+/** Selo para itens de exemplo (campo "demo": true). Remova o campo do conteúdo para ocultá-lo. */
+import { t, type Lang } from '../i18n/ui';
+interface Props { show?: boolean; lang?: Lang; class?: string }
+const { show = true, lang, class: className } = Astro.props;
+const tr = t(lang);
+---
+
+{
+  show && (
+    <span
+      class:list={[
+        'inline-flex items-center gap-1 rounded-full bg-warning-bg px-2 py-0.5 text-[0.6875rem] font-semibold uppercase tracking-wide text-warning-fg',
+        className,
+      ]}
+      title={tr('demo.title')}
+    >
+      {tr('demo.badge')}
+      <span class="sr-only">— {tr('demo.title')}</span>
+    </span>
+  )
+}

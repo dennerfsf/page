@@ -1,0 +1,22 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Resume from '../../components/Resume.astro';
+import { profile } from '../../data/site';
+import { CV_PAGES } from '../../lib/cv';
+import { personLd } from '../../lib/seo';
+---
+
+<BaseLayout
+  lang="en"
+  title="Resume"
+  description={`Resume of ${profile.name}: experience, education, skills, publications and projects.`}
+  type="profile"
+  crumbs={[{ label: 'Resume', href: '/en/resume/' }]}
+  alternates={[
+    { lang: 'pt-BR', href: CV_PAGES['pt-BR'].page },
+    { lang: 'en', href: CV_PAGES.en.page },
+  ]}
+  schema={[{ '@type': 'ProfilePage', mainEntity: personLd(Astro.site) }]}
+>
+  <Resume lang="en" />
+</BaseLayout>

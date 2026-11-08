@@ -1,0 +1,11 @@
+[
+  {
+    "$comment": "EXEMPLO — substitua por certificações reais. \"url\" pode apontar para a credencial verificável.",
+    "id": "certificacao-exemplo",
+    "demo": true,
+    "name": { "pt": "Certificação de exemplo", "en": "Sample certification" },
+    "issuer": "Emissor a informar",
+    "date": "2024-01",
+    "url": ""
+  }
+]

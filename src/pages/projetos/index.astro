@@ -1,0 +1,81 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHeader from '../../components/PageHeader.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import { getProjects } from '../../lib/content';
+import { PROJECT_CATEGORIES, slugify } from '../../lib/taxonomy';
+
+const projects = await getProjects();
+const counts = Object.fromEntries(
+  PROJECT_CATEGORIES.map((c) => [c, projects.filter((p) => p.data.category === c || p.data.extraCategories.includes(c)).length]),
+);
+---
+
+<BaseLayout
+  title="Projetos"
+  description="Portfólio de projetos em engenharia de dados, BI, inteligência artificial, integrações, automação, pesquisa e IoT."
+  crumbs={[{ label: 'Projetos', href: '/projetos/' }]}
+>
+  <PageHeader
+    eyebrow="Portfólio"
+    title="Projetos"
+    description="Soluções em dados, integrações, inteligência artificial e engenharia. Projetos confidenciais exibem apenas informações autorizadas para divulgação."
+  />
+
+  <section aria-labelledby="lista-projetos" data-project-filter>
+    <h2 id="lista-projetos" class="sr-only">Lista de projetos</h2>
+    <div class="no-print mb-8" role="group" aria-label="Filtrar projetos por categoria">
+      <div class="flex flex-wrap gap-2">
+        <button type="button" class="chip min-h-10 cursor-pointer px-3.5 hover:border-link aria-pressed:border-transparent aria-pressed:bg-primary aria-pressed:text-white" aria-pressed="true" data-cat="">
+          Todos <span class="opacity-70 in-aria-pressed:opacity-100">({projects.length})</span>
+        </button>
+        {
+          PROJECT_CATEGORIES.map((c) => (
+            <button
+              type="button"
+              class="chip min-h-10 cursor-pointer px-3.5 hover:border-link disabled:cursor-not-allowed disabled:opacity-40 aria-pressed:border-transparent aria-pressed:bg-primary aria-pressed:text-white"
+              aria-pressed="false"
+              data-cat={slugify(c)}
+              disabled={counts[c] === 0}
+            >
+              {c} <span class="opacity-70 in-aria-pressed:opacity-100">({counts[c]})</span>
+            </button>
+          ))
+        }
+      </div>
+      <p class="mt-3 text-sm text-muted" role="status" aria-live="polite" data-count></p>
+    </div>
+
+    <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      {projects.map((project) => <ProjectCard project={project} filterable />)}
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  const root = document.querySelector<HTMLElement>('[data-project-filter]');
+  if (root) {
+    const buttons = [...root.querySelectorAll<HTMLButtonElement>('[data-cat]')];
+    const cards = [...root.querySelectorAll<HTMLElement>('[data-project]')];
+    const count = root.querySelector<HTMLElement>('[data-count]')!;
+
+    const apply = (slug: string) => {
+      buttons.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.cat === slug)));
+      let n = 0;
+      cards.forEach((c) => {
+        const show = !slug || (c.dataset.categories ?? '').split('|').includes(slug);
+        c.hidden = !show;
+        if (show) n++;
+      });
+      count.textContent = `${n} ${n === 1 ? 'projeto exibido' : 'projetos exibidos'}`;
+      const url = new URL(location.href);
+      if (slug) url.searchParams.set('categoria', slug);
+      else url.searchParams.delete('categoria');
+      history.replaceState(null, '', url);
+    };
+
+    buttons.forEach((b) => b.addEventListener('click', () => apply(b.dataset.cat ?? '')));
+    const initial = new URLSearchParams(location.search).get('categoria') ?? '';
+    apply(buttons.some((b) => b.dataset.cat === initial) ? initial : '');
+  }
+</script>

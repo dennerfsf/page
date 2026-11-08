@@ -1,0 +1,82 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+import PageHeader from '../components/PageHeader.astro';
+import Timeline from '../components/Timeline.astro';
+import { profile } from '../data/site';
+import { l, lList } from '../i18n/format';
+import { skills, timeline } from '../lib/data';
+import { personLd } from '../lib/seo';
+import { withBase } from '../lib/url';
+---
+
+<BaseLayout
+  title="Sobre mim"
+  description={`Trajetória profissional e acadêmica de ${profile.name}: formação, experiência, pesquisa e visão.`}
+  type="profile"
+  crumbs={[{ label: 'Sobre', href: '/sobre/' }]}
+  schema={[{ '@type': 'AboutPage', mainEntity: personLd(Astro.site) }]}
+>
+  <PageHeader eyebrow="Sobre mim" title={profile.name} description={l(profile.headline)} />
+
+  <div class="grid gap-16">
+    <section aria-labelledby="bio" class="grid gap-8 lg:grid-cols-[1.5fr_1fr]">
+      <div>
+        <h2 id="bio" class="mb-4 font-display text-2xl font-bold text-fg">Biografia profissional</h2>
+        <div class="space-y-4 text-lg leading-relaxed text-fg-soft">
+          {profile.bio.map((p) => <p>{l(p)}</p>)}
+        </div>
+      </div>
+      <aside class="card space-y-4 p-6" aria-labelledby="visao">
+        <h2 id="visao" class="flex items-center gap-2 font-display text-lg font-semibold text-fg">
+          <Icon name="sparkles" class="text-accent" /> Visão e objetivos
+        </h2>
+        <p class="leading-relaxed text-fg-soft">{l(profile.vision)}</p>
+        <a href={withBase('/curriculo/')} class="btn btn-primary w-full"><Icon name="file-text" size={18} /> Ver currículo completo</a>
+      </aside>
+    </section>
+
+    <section aria-labelledby="trajetoria">
+      <h2 id="trajetoria" class="mb-2 font-display text-2xl font-bold text-fg">Trajetória</h2>
+      <p class="mb-8 text-muted">Experiência profissional e formação acadêmica, da mais recente para a mais antiga.</p>
+      <Timeline items={timeline()} />
+    </section>
+
+    <div class="grid gap-6 md:grid-cols-2">
+      <section aria-labelledby="pesquisa" class="card p-6">
+        <h2 id="pesquisa" class="mb-4 flex items-center gap-2 font-display text-lg font-semibold text-fg">
+          <Icon name="flask" class="text-accent" /> Áreas de pesquisa
+        </h2>
+        <ul class="space-y-2 text-fg-soft">
+          {lList(profile.researchAreas).map((a) => <li class="flex gap-2"><Icon name="check" size={18} class="mt-0.5 shrink-0 text-accent" />{a}</li>)}
+        </ul>
+        <a href={withBase('/publicacoes/')} class="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-link hover:underline">Produção científica <Icon name="arrow-right" size={15} /></a>
+      </section>
+      <section aria-labelledby="interesses" class="card p-6">
+        <h2 id="interesses" class="mb-4 flex items-center gap-2 font-display text-lg font-semibold text-fg">
+          <Icon name="book" class="text-accent" /> Interesses científicos
+        </h2>
+        <ul class="flex flex-wrap gap-2">
+          {lList(profile.interests).map((a) => <li class="chip">{a}</li>)}
+        </ul>
+      </section>
+    </div>
+
+    <section aria-labelledby="tecnologias">
+      <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
+        <h2 id="tecnologias" class="font-display text-2xl font-bold text-fg">Tecnologias utilizadas</h2>
+        <a href={withBase('/competencias/')} class="inline-flex items-center gap-1.5 text-sm font-semibold text-link hover:underline">Detalhar competências <Icon name="arrow-right" size={15} /></a>
+      </div>
+      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {
+          skills.map((g) => (
+            <div class="card p-5">
+              <h3 class="mb-3 flex items-center gap-2 font-display font-semibold text-fg"><Icon name={g.icon} size={18} class="text-accent" />{l(g.title)}</h3>
+              <p class="text-sm leading-relaxed text-muted">{lList(g.items).join(' · ')}</p>
+            </div>
+          ))
+        }
+      </div>
+    </section>
+  </div>
+</BaseLayout>

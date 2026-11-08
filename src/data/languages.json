@@ -1,0 +1,13 @@
+[
+  {
+    "$comment": "Confirme os níveis. Remova \"demo\": true dos itens confirmados.",
+    "name": { "pt": "Português", "en": "Portuguese" },
+    "level": { "pt": "Nativo", "en": "Native" },
+    "demo": true
+  },
+  {
+    "name": { "pt": "Inglês", "en": "English" },
+    "level": { "pt": "Nível a informar", "en": "Level to be provided" },
+    "demo": true
+  }
+]

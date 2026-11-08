@@ -1,0 +1,211 @@
+---
+/**
+ * Currículo — apresentação única para web, impressão e PDF.
+ * Todo o conteúdo vem de src/data/*.json e das coleções de projetos/publicações.
+ */
+import DemoBadge from './DemoBadge.astro';
+import Icon from './Icon.astro';
+import { profile, socialLinks } from '../data/site';
+import { formatRange, formatYearMonth, l, lList } from '../i18n/format';
+import { t, type Lang } from '../i18n/ui';
+import { formatAuthors, getProjects, getPublications } from '../lib/content';
+import { CV_PAGES } from '../lib/cv';
+import { certifications, education, experience, languages, skills } from '../lib/data';
+import { absoluteUrl, withBase } from '../lib/url';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const tr = t(lang);
+const other: Lang = lang === 'en' ? 'pt-BR' : 'en';
+
+const projects = (await getProjects()).filter((p) => p.data.featured).slice(0, 4);
+const publications = (await getPublications()).slice(0, 6);
+const links = socialLinks();
+const siteUrl = absoluteUrl('/', Astro.site);
+---
+
+<div class="mx-auto max-w-4xl" data-cv data-cv-pdf={CV_PAGES[lang].pdf}>
+  <div class="no-print mb-8 flex flex-wrap items-center gap-3">
+    <a href={withBase(CV_PAGES[lang].pdf)} class="btn btn-primary" download>
+      <Icon name="download" size={18} /> {tr('cv.download')}
+    </a>
+    <button type="button" class="btn btn-ghost" data-print>
+      <Icon name="printer" size={18} /> {tr('cv.print')}
+    </button>
+    <a href={withBase(CV_PAGES[other].page)} class="btn btn-ghost" hreflang={other} lang={other}>
+      <Icon name="globe" size={18} /> {tr('cv.switch')}
+    </a>
+  </div>
+
+  <article class="card overflow-hidden print:rounded-none print:border-0">
+    <header class="border-b border-border bg-surface-2/60 p-6 sm:p-10 print:bg-transparent print:px-0 print:pt-0">
+      <h1 class="font-display text-3xl font-bold tracking-tight text-fg sm:text-4xl">{profile.name}</h1>
+      <p class="mt-1 text-lg font-medium text-accent">{l(profile.headline, lang)}</p>
+      <ul class="mt-4 flex flex-wrap gap-x-5 gap-y-1.5 text-sm text-fg-soft">
+        {profile.email && <li class="inline-flex items-center gap-1.5"><Icon name="mail" size={15} /><a href={`mailto:${profile.email}`}>{profile.email}</a></li>}
+        {profile.location && <li class="inline-flex items-center gap-1.5"><Icon name="map-pin" size={15} />{profile.location}</li>}
+        <li class="inline-flex items-center gap-1.5"><Icon name="globe" size={15} /><a href={siteUrl}>{siteUrl.replace(/^https?:\/\//, '').replace(/\/$/, '')}</a></li>
+        {
+          links.map((s) => (
+            <li class="inline-flex items-center gap-1.5">
+              <Icon name={s.icon} size={15} />
+              <a href={s.url}>{s.url.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '')}</a>
+            </li>
+          ))
+        }
+      </ul>
+    </header>
+
+    <div class="space-y-10 p-6 sm:p-10 print:space-y-6 print:px-0">
+      <section aria-labelledby="cv-summary" class="print-break-avoid">
+        <h2 id="cv-summary" class="cv-h2">{tr('cv.summary')}</h2>
+        <p class="leading-relaxed text-fg-soft">{l(profile.summary, lang)}</p>
+      </section>
+
+      <section aria-labelledby="cv-exp">
+        <h2 id="cv-exp" class="cv-h2">{tr('cv.experience')}</h2>
+        <ol class="space-y-6 print:space-y-4">
+          {
+            experience.map((e) => (
+              <li class="print-break-avoid">
+                <div class="flex flex-col justify-between gap-1 sm:flex-row sm:items-baseline">
+                  <h3 class="flex flex-wrap items-center gap-2 font-display text-lg font-semibold text-fg">
+                    {l(e.role, lang)} <DemoBadge show={e.demo} lang={lang} />
+                  </h3>
+                  <p class="shrink-0 font-mono text-xs text-muted">{formatRange(e.start, e.end, lang, tr('cv.present'))}</p>
+                </div>
+                <p class="text-sm font-medium text-accent">{[e.organization, e.location].filter(Boolean).join(' · ')}</p>
+                {e.summary && <p class="mt-2 text-sm leading-relaxed text-fg-soft">{l(e.summary, lang)}</p>}
+                {(e.highlights?.length ?? 0) > 0 && (
+                  <ul class="mt-2 list-disc space-y-1 pl-5 text-sm text-fg-soft marker:text-accent">
+                    {lList(e.highlights, lang).map((h) => <li>{h}</li>)}
+                  </ul>
+                )}
+                {(e.technologies?.length ?? 0) > 0 && <p class="mt-2 text-xs text-muted">{e.technologies!.join(' · ')}</p>}
+              </li>
+            ))
+          }
+        </ol>
+      </section>
+
+      <section aria-labelledby="cv-edu">
+        <h2 id="cv-edu" class="cv-h2">{tr('cv.education')}</h2>
+        <ol class="space-y-4">
+          {
+            education.map((e) => (
+              <li class="print-break-avoid">
+                <div class="flex flex-col justify-between gap-1 sm:flex-row sm:items-baseline">
+                  <h3 class="flex flex-wrap items-center gap-2 font-display text-lg font-semibold text-fg">
+                    {l(e.degree, lang)} <DemoBadge show={e.demo} lang={lang} />
+                  </h3>
+                  {e.start && <p class="shrink-0 font-mono text-xs text-muted">{formatRange(e.start, e.end ?? null, lang, tr('cv.present'))}</p>}
+                </div>
+                <p class="text-sm font-medium text-accent">{e.institution}</p>
+                {e.description && <p class="mt-1 text-sm text-fg-soft">{l(e.description, lang)}</p>}
+              </li>
+            ))
+          }
+        </ol>
+      </section>
+
+      <div class="grid gap-10 sm:grid-cols-2 print:grid-cols-2 print:gap-6">
+        <section aria-labelledby="cv-skills" class="print-break-avoid">
+          <h2 id="cv-skills" class="cv-h2">{tr('cv.skills')}</h2>
+          <dl class="space-y-3 text-sm">
+            {
+              skills.map((g) => (
+                <div>
+                  <dt class="font-semibold text-fg">{l(g.title, lang)}</dt>
+                  <dd class="text-fg-soft">{lList(g.items, lang).join(', ')}</dd>
+                </div>
+              ))
+            }
+          </dl>
+        </section>
+
+        <div class="space-y-10 print:space-y-6">
+          <section aria-labelledby="cv-lang" class="print-break-avoid">
+            <h2 id="cv-lang" class="cv-h2">{tr('cv.languages')}</h2>
+            <ul class="space-y-1.5 text-sm">
+              {
+                languages.map((x) => (
+                  <li class="flex flex-wrap items-center gap-2 text-fg-soft">
+                    <span class="font-semibold text-fg">{l(x.name, lang)}</span> — {l(x.level, lang)}
+                    <DemoBadge show={x.demo} lang={lang} />
+                  </li>
+                ))
+              }
+            </ul>
+          </section>
+
+          {
+            certifications.length > 0 && (
+              <section aria-labelledby="cv-cert" class="print-break-avoid">
+                <h2 id="cv-cert" class="cv-h2">{tr('cv.certifications')}</h2>
+                <ul class="space-y-2 text-sm">
+                  {certifications.map((c) => (
+                    <li class="text-fg-soft">
+                      <span class="flex flex-wrap items-center gap-2 font-semibold text-fg">
+                        {c.url ? <a href={c.url}>{l(c.name, lang)}</a> : l(c.name, lang)}
+                        <DemoBadge show={c.demo} lang={lang} />
+                      </span>
+                      {c.issuer}{c.date && ` · ${formatYearMonth(c.date, lang)}`}
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )
+          }
+        </div>
+      </div>
+
+      {
+        publications.length > 0 && (
+          <section aria-labelledby="cv-pubs">
+            <h2 id="cv-pubs" class="cv-h2">{tr('cv.publications')}</h2>
+            <ol class="space-y-2 text-sm">
+              {publications.map((p) => (
+                <li class="print-break-avoid text-fg-soft">
+                  {formatAuthors(p.data.authors)}. <a href={withBase(`/publicacoes/${p.id}/`)} class="font-semibold text-fg">{p.data.title}</a>.{' '}
+                  <em>{p.data.venue}</em>, {p.data.year}.{p.data.doi && ` DOI: ${p.data.doi}.`} <DemoBadge show={p.data.demo} lang={lang} />
+                </li>
+              ))}
+            </ol>
+          </section>
+        )
+      }
+
+      {
+        projects.length > 0 && (
+          <section aria-labelledby="cv-proj">
+            <h2 id="cv-proj" class="cv-h2">{tr('cv.projects')}</h2>
+            <ul class="grid gap-4 sm:grid-cols-2 print:grid-cols-2">
+              {projects.map((p) => (
+                <li class="print-break-avoid text-sm">
+                  <a href={withBase(`/projetos/${p.id}/`)} class="flex flex-wrap items-center gap-2 font-semibold text-fg">
+                    {p.data.title} <DemoBadge show={p.data.demo} lang={lang} />
+                  </a>
+                  <p class="text-fg-soft">{p.data.summary}</p>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )
+      }
+    </div>
+  </article>
+</div>
+
+<style>
+  .cv-h2 {
+    margin-bottom: 0.875rem;
+    padding-bottom: 0.375rem;
+    border-bottom: 1px solid var(--border);
+    font-family: var(--font-display);
+    font-size: 0.8125rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--fg);
+  }
+</style>

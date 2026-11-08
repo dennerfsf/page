@@ -1,0 +1,39 @@
+[
+  {
+    "id": "dados",
+    "icon": "database",
+    "title": { "pt": "Dados e Analytics", "en": "Data & Analytics" },
+    "items": ["SQL", "Python", "BigQuery", "PostgreSQL", "SQL Server", "Qlik Sense", "Power BI", "Metabase"]
+  },
+  {
+    "id": "arquitetura",
+    "icon": "layers",
+    "title": { "pt": "Engenharia e Arquitetura", "en": "Engineering & Architecture" },
+    "items": [
+      { "pt": "Engenharia de Dados", "en": "Data Engineering" },
+      "Data Mesh",
+      { "pt": "Governança de Dados", "en": "Data Governance" },
+      "APIs",
+      { "pt": "Microsserviços", "en": "Microservices" },
+      { "pt": "Integração de Sistemas", "en": "Systems Integration" }
+    ]
+  },
+  {
+    "id": "desenvolvimento",
+    "icon": "code",
+    "title": { "pt": "Desenvolvimento e Infraestrutura", "en": "Development & Infrastructure" },
+    "items": ["TypeScript", "JavaScript", "Node.js", "Git", "Linux", "Docker", "CI/CD", "Cloud Computing"]
+  },
+  {
+    "id": "ia",
+    "icon": "sparkles",
+    "title": { "pt": "Inteligência Artificial", "en": "Artificial Intelligence" },
+    "items": [
+      { "pt": "IA Generativa", "en": "Generative AI" },
+      { "pt": "Agentes de IA", "en": "AI Agents" },
+      { "pt": "Automação Inteligente", "en": "Intelligent Automation" },
+      "Machine Learning",
+      { "pt": "Integração de LLMs", "en": "LLM Integration" }
+    ]
+  }
+]

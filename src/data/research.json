@@ -1,0 +1,33 @@
+{
+  "$comment": "Trajetória científica complementar às publicações (src/content/publications). Itens com \"demo\": true são exemplos.",
+  "projects": [
+    {
+      "demo": true,
+      "title": "Projeto de pesquisa (exemplo)",
+      "role": "Função a informar",
+      "institution": "Instituição a informar",
+      "period": "AAAA — AAAA",
+      "description": "Descreva objetivo, financiamento (se houver) e principais resultados divulgáveis.",
+      "url": ""
+    }
+  ],
+  "groups": [
+    {
+      "demo": true,
+      "name": "Grupo de pesquisa (exemplo)",
+      "institution": "Instituição a informar",
+      "role": "Membro",
+      "url": ""
+    }
+  ],
+  "events": [
+    {
+      "demo": true,
+      "name": "Congresso ou evento (exemplo)",
+      "year": 2025,
+      "participation": "Apresentação de trabalho / ouvinte / organização",
+      "location": "",
+      "url": ""
+    }
+  ]
+}

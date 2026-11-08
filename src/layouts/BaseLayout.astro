@@ -1,0 +1,72 @@
+---
+import BaseHead, { type HeadProps } from '../components/BaseHead.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+import Icon from '../components/Icon.astro';
+import { t, type Lang } from '../i18n/ui';
+import { breadcrumbLd, graph, type Crumb } from '../lib/seo';
+
+interface Props extends Omit<HeadProps, 'jsonLd' | 'lang'> {
+  lang?: Lang;
+  /** Blocos JSON-LD (objetos). O BreadcrumbList é adicionado automaticamente. */
+  schema?: Record<string, unknown>[];
+  crumbs?: Crumb[];
+  /** Indexar a página na busca interna (Pagefind). */
+  searchable?: boolean;
+  /** Remove o container padrão (para páginas com seções de largura total). */
+  bare?: boolean;
+}
+
+const { lang = 'pt-BR', schema = [], crumbs, searchable = true, bare = false, ...head } = Astro.props;
+const tr = t(lang);
+const fullCrumbs: Crumb[] | undefined = crumbs ? [{ label: tr('nav.home'), href: '/' }, ...crumbs] : undefined;
+const jsonLd =
+  schema.length || fullCrumbs ? graph(...schema, fullCrumbs ? breadcrumbLd(fullCrumbs, Astro.site) : null) : undefined;
+---
+
+<!doctype html>
+<html lang={lang} class="dark">
+  <head>
+    <BaseHead {...head} lang={lang} jsonLd={jsonLd} />
+    <slot name="head" />
+  </head>
+  <body class="flex min-h-dvh flex-col">
+    <a
+      href="#main"
+      class="sr-only z-50 rounded-lg bg-primary px-4 py-2 font-semibold text-white focus:not-sr-only focus:fixed focus:left-4 focus:top-4"
+      >{tr('site.skip')}</a
+    >
+    <slot name="top" />
+    <Header lang={lang} />
+
+    <main id="main" tabindex="-1" class="flex-1 outline-none" data-pagefind-body={searchable ? '' : undefined}>
+      {
+        bare ? (
+          <slot />
+        ) : (
+          <div class="container-site pt-10 sm:pt-14">
+            {fullCrumbs && <Breadcrumbs items={fullCrumbs} lang={lang} />}
+            <slot />
+          </div>
+        )
+      }
+    </main>
+
+    <Footer lang={lang} />
+
+    <a
+      href="#main"
+      data-back-to-top
+      aria-label={tr('top.back')}
+      title={tr('top.back')}
+      class="no-print pointer-events-none fixed bottom-5 right-5 z-30 grid size-12 translate-y-4 place-items-center rounded-full border border-border-strong bg-surface text-fg opacity-0 shadow-lg transition-all duration-300 hover:border-link hover:text-link focus-visible:translate-y-0 focus-visible:opacity-100 data-[visible]:pointer-events-auto data-[visible]:translate-y-0 data-[visible]:opacity-100"
+    >
+      <Icon name="arrow-up" />
+    </a>
+
+    <script>
+      import '../scripts/site.ts';
+    </script>
+  </body>
+</html>

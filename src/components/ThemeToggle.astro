@@ -1,0 +1,18 @@
+---
+import Icon from './Icon.astro';
+import { t, type Lang } from '../i18n/ui';
+interface Props { lang?: Lang }
+const tr = t(Astro.props.lang);
+---
+
+<button
+  type="button"
+  class="inline-flex size-11 items-center justify-center rounded-xl text-muted transition-colors hover:bg-surface-2 hover:text-fg"
+  data-theme-toggle
+  aria-label={tr('theme.toggle')}
+  title={tr('theme.toggle')}
+  aria-pressed="false"
+>
+  <Icon name="sun" class="hidden dark:block" />
+  <Icon name="moon" class="block dark:hidden" />
+</button>

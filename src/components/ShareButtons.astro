@@ -1,0 +1,39 @@
+---
+import Icon from './Icon.astro';
+interface Props { url: string; title: string }
+const { url, title } = Astro.props;
+const u = encodeURIComponent(url);
+const tt = encodeURIComponent(title);
+const links = [
+  { label: 'LinkedIn', icon: 'linkedin', href: `https://www.linkedin.com/sharing/share-offsite/?url=${u}` },
+  { label: 'X', icon: 'x-brand', href: `https://x.com/intent/post?url=${u}&text=${tt}` },
+  { label: 'WhatsApp', icon: 'message', href: `https://wa.me/?text=${tt}%20${u}` },
+  { label: 'E-mail', icon: 'mail', href: `mailto:?subject=${tt}&body=${u}` },
+];
+---
+
+<div class="no-print flex flex-wrap items-center gap-2" data-pagefind-ignore>
+  <span class="mr-1 text-sm font-medium text-muted">Compartilhar:</span>
+  {
+    links.map((l) => (
+      <a
+        href={l.href}
+        target={l.icon === 'mail' ? undefined : '_blank'}
+        rel="noopener noreferrer"
+        class="inline-flex size-11 items-center justify-center rounded-xl border border-border text-muted transition-colors hover:border-link hover:text-link"
+        aria-label={`Compartilhar no ${l.label}`}
+        title={l.label}
+      >
+        <Icon name={l.icon} size={18} />
+      </a>
+    ))
+  }
+  <button
+    type="button"
+    data-copy={url}
+    class="inline-flex min-h-11 items-center gap-2 rounded-xl border border-border px-3 text-sm text-muted transition-colors hover:border-link hover:text-link"
+  >
+    <Icon name="copy" size={16} /> Copiar link
+    <span data-copy-status role="status" aria-live="polite" class="text-accent"></span>
+  </button>
+</div>
