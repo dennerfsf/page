@@ -8,7 +8,7 @@ interface Props { items: Crumb[]; lang?: Lang }
 const { items, lang } = Astro.props;
 ---
 
-<nav aria-label={t(lang)('breadcrumb.label')} class="no-print mb-6 text-sm" data-pagefind-ignore>
+<nav aria-label={t(lang)('breadcrumb.label')} class="no-print mb-6 text-sm" data-breadcrumbs data-pagefind-ignore>
   <ol class="flex flex-wrap items-center gap-1.5 text-muted">
     {
       items.map((c, i) => {
