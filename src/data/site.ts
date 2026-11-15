@@ -4,6 +4,8 @@
  */
 import profile from './profile.json';
 import type { UIKey } from '../i18n/ui';
+import { ROUTES, studyAreaPath } from '../lib/routes';
+import { AREAS, type Area } from '../lib/taxonomy';
 
 export const SITE = {
   title: 'Cero',
@@ -28,15 +30,54 @@ export const SITE = {
   analytics: null as null | { provider: string; domain: string },
 };
 
-export const NAV: { key: UIKey; href: string }[] = [
-  { key: 'nav.home', href: '/' },
-  { key: 'nav.about', href: '/sobre/' },
-  { key: 'nav.cv', href: '/curriculo/' },
-  { key: 'nav.projects', href: '/projetos/' },
-  { key: 'nav.blog', href: '/blog/' },
-  { key: 'nav.publications', href: '/publicacoes/' },
-  { key: 'nav.skills', href: '/competencias/' },
-  { key: 'nav.contact', href: '/contato/' },
+/**
+ * Menu principal. Itens com `children` viram submenus (suspensos no desktop, recolhíveis no celular).
+ * `auto` acrescenta, no build, os itens que vêm do conteúdo (ver src/lib/nav.ts):
+ *   - 'news-years': um item por ano de Notícias, com as notícias daquele ano;
+ *   - 'ideas': as publicações mais recentes;
+ *   - 'study-area': os estudos mais recentes da área indicada em `area`.
+ * Assim, um ano novo (ex.: 2027) entra no menu sem editar este arquivo.
+ */
+export type NavAuto = 'news-years' | 'ideas' | 'study-area';
+export interface NavItem {
+  key: UIKey;
+  href: string;
+  children?: NavItem[];
+  auto?: NavAuto;
+  area?: Area;
+}
+
+export const NAV: NavItem[] = [
+  {
+    key: 'nav.newsIdeas',
+    href: ROUTES.newsIdeas,
+    children: [
+      { key: 'nav.news', href: ROUTES.news, auto: 'news-years' },
+      { key: 'nav.ideas', href: ROUTES.ideas, auto: 'ideas' },
+    ],
+  },
+  {
+    key: 'nav.studies',
+    href: ROUTES.studies,
+    children: (Object.keys(AREAS) as Area[]).map((area) => ({
+      key: `area.${area}` as UIKey,
+      href: studyAreaPath(area),
+      auto: 'study-area',
+      area,
+    })),
+  },
+  { key: 'nav.articles', href: ROUTES.articles },
+  {
+    key: 'nav.aboutMenu',
+    href: '/sobre/',
+    children: [
+      { key: 'nav.aboutMe', href: '/sobre/' },
+      { key: 'nav.cv', href: '/curriculo/' },
+      { key: 'nav.projects', href: '/projetos/' },
+      { key: 'nav.skills', href: '/competencias/' },
+      { key: 'nav.contact', href: '/contato/' },
+    ],
+  },
 ];
 
 export type SocialKey = keyof typeof profile.social;

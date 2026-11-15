@@ -1,0 +1,39 @@
+---
+/**
+ * Lista aninhada do submenu (até 3 níveis abaixo do item principal),
+ * ex.: Notícias › 2026 › título. Usada no desktop e no celular.
+ */
+import type { NavNode } from '../lib/nav';
+import { stripBase, withBase } from '../lib/url';
+
+interface Props { nodes: NavNode[]; depth?: number; current: string }
+const { nodes, depth = 0, current } = Astro.props;
+const LINK = [
+  'block rounded-lg px-3 py-2 text-sm font-semibold',
+  'block rounded-lg px-3 py-1.5 text-sm font-medium',
+  'block rounded-lg px-3 py-1.5 text-[0.8125rem] leading-snug',
+];
+---
+
+<ul class:list={[depth > 0 && 'ml-3 border-l border-border pl-2']} data-nav-depth={depth}>
+  {
+    nodes.map((node) => {
+      const exact = stripBase(current) === stripBase(withBase(node.href));
+      return (
+        <li>
+          <a
+            href={withBase(node.href)}
+            aria-current={exact ? 'page' : undefined}
+            class:list={[
+              LINK[Math.min(depth, 2)],
+              exact ? 'bg-surface-2 text-fg' : depth === 2 ? 'text-muted hover:bg-surface-2 hover:text-fg' : 'text-fg-soft hover:bg-surface-2 hover:text-link',
+            ]}
+          >
+            {node.label}
+          </a>
+          {node.children && <Astro.self nodes={node.children} depth={depth + 1} current={current} />}
+        </li>
+      );
+    })
+  }
+</ul>
