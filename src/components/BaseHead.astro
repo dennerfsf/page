@@ -62,7 +62,7 @@ const ogLocale = lang === 'en' ? 'en_US' : 'pt_BR';
 <meta name="theme-color" content="#1B1B1F" media="(prefers-color-scheme: dark)" />
 <meta name="theme-color" content="#F7F7F8" media="(prefers-color-scheme: light)" />
 <link rel="sitemap" href={withBase('/sitemap-index.xml')} />
-<link rel="alternate" type="application/rss+xml" title={`${SITE.title} — Blog`} href={withBase('/rss.xml')} />
+<link rel="alternate" type="application/rss+xml" title={`${SITE.title} — Notícias e ideias`} href={withBase('/rss.xml')} />
 {alternates.map((a) => <link rel="alternate" hreflang={a.lang} href={absoluteUrl(a.href, Astro.site)} />)}
 
 <!-- Open Graph -->

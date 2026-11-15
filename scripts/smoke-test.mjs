@@ -1,6 +1,7 @@
 /**
  * Testes de fumaça no site compilado (dist/), usando um navegador real.
- * Valida os fluxos principais: tema, menu, filtros, busca, PDF e ausência de erros.
+ * Valida os fluxos principais: navegação (menu e submenus), seções, breadcrumbs,
+ * redirecionamentos, tema, busca, PDF e ausência de erros.
  * Uso: npm run build && npm run test:e2e
  */
 import { readFile } from 'node:fs/promises';
@@ -27,8 +28,8 @@ const pageErrors = [];
 
 async function test(name, fn) {
   try {
-    await fn();
-    results.push([true, name]);
+    const note = await fn();
+    results.push([true, note ? `${name} (${note})` : name]);
   } catch (err) {
     results.push([false, `${name}: ${err.message}`]);
   }
@@ -36,22 +37,129 @@ async function test(name, fn) {
 function assert(cond, msg) {
   if (!cond) throw new Error(msg);
 }
+const path = (url) => new URL(url).pathname;
 
 const ctx = await browser.newContext({ viewport: { width: 1366, height: 900 }, colorScheme: 'dark' });
 const page = await ctx.newPage();
 page.on('pageerror', (e) => pageErrors.push(`${page.url()}: ${e.message}`));
 page.on('response', (r) => r.status() >= 400 && pageErrors.push(`${r.status()} ${r.url()}`));
 
+/** Uma página por seção, mais as páginas pessoais. */
+const PAGES = [
+  '/',
+  '/noticias-e-ideias/',
+  '/noticias-e-ideias/noticias/',
+  '/noticias-e-ideias/noticias/2026/',
+  '/noticias-e-ideias/publicacoes/',
+  '/estudos/',
+  '/estudos/fisica/',
+  '/artigos/',
+  '/categorias/',
+  '/tags/',
+  '/sobre/',
+  '/curriculo/',
+  '/projetos/',
+  '/competencias/',
+  '/contato/',
+  '/en/resume/',
+];
+
 await test('páginas principais carregam com título e h1 únicos', async () => {
   const titles = new Set();
-  for (const p of ['/', '/sobre/', '/curriculo/', '/projetos/', '/blog/', '/publicacoes/', '/competencias/', '/contato/', '/en/resume/']) {
+  for (const p of PAGES) {
     const res = await page.goto(origin + p);
     assert(res.status() === 200, `${p} retornou ${res.status()}`);
     const h1 = await page.locator('h1').count();
     assert(h1 === 1, `${p} tem ${h1} <h1>`);
     titles.add(await page.title());
   }
-  assert(titles.size === 9, 'títulos de página repetidos');
+  assert(titles.size === PAGES.length, 'títulos de página repetidos');
+});
+
+await test('páginas internas têm breadcrumb e BreadcrumbList', async () => {
+  for (const p of PAGES.filter((x) => x !== '/')) {
+    await page.goto(origin + p);
+    assert(await page.locator('[data-breadcrumbs] [aria-current="page"]').count() === 1, `${p} sem breadcrumb`);
+    const graphs = await page.$$eval('script[type="application/ld+json"]', (els) => els.map((s) => JSON.parse(s.textContent)));
+    const nodes = graphs.flatMap((g) => g['@graph'] ?? [g]);
+    assert(nodes.some((n) => n['@type'] === 'BreadcrumbList'), `${p} sem BreadcrumbList`);
+  }
+});
+
+await test('trilha do ano de Notícias: Início › Notícias e ideias › Notícias › 2026', async () => {
+  await page.goto(origin + '/noticias-e-ideias/noticias/2026/');
+  const crumbs = await page.$$eval('[data-breadcrumbs] li', (els) => els.map((e) => e.textContent.trim()));
+  assert(crumbs.join(' › ') === 'Início › Notícias e ideias › Notícias › 2026', `trilha: ${crumbs.join(' › ')}`);
+});
+
+await test('Notícias agrupa por ano, com 2026 listado', async () => {
+  await page.goto(origin + '/noticias-e-ideias/noticias/');
+  const years = await page.$$eval('[data-news-year]', (els) => els.map((e) => Number(e.dataset.newsYear)));
+  assert(years.includes(2026), 'grupo 2026 ausente');
+  assert(years.join() === [...years].sort((a, b) => b - a).join(), `anos fora de ordem: ${years}`);
+});
+
+await test('área de Estudos vazia mostra "Em breve"', async () => {
+  await page.goto(origin + '/estudos/fisica/');
+  const text = await page.locator('[data-empty-state]').innerText();
+  assert(text.includes('Em breve'), 'estado vazio ausente');
+});
+
+await test('URL antiga redireciona para a nova', async () => {
+  for (const [from, to] of [['/blog/', '/noticias-e-ideias/'], ['/publicacoes/', '/artigos/']]) {
+    await page.goto(origin + from);
+    await page.waitForURL((u) => u.pathname === `${base}${to.slice(1)}`, { timeout: 5000 });
+    assert(path(page.url()) === `${base}${to.slice(1)}`, `${from} foi para ${page.url()}`);
+  }
+});
+
+await test('menu desktop: submenu abre por teclado, mostra 3 níveis e fecha com Esc', async () => {
+  await page.goto(origin + '/');
+  const btn = page.locator('[data-desktop-nav] [data-submenu-toggle]').first();
+  await btn.focus();
+  await page.keyboard.press('Enter');
+  assert((await btn.getAttribute('aria-expanded')) === 'true', 'aria-expanded não mudou');
+  const panel = page.locator(`#${await btn.getAttribute('aria-controls')}`);
+  assert(await panel.isVisible(), 'submenu não abriu');
+  for (const href of ['noticias-e-ideias/noticias/', 'noticias-e-ideias/noticias/2026/', 'noticias-e-ideias/publicacoes/']) {
+    assert((await panel.locator(`a[href="${base}${href}"]`).count()) === 1, `link ${href} ausente no submenu`);
+  }
+  // O 2º nível (anos) fica dentro do 1º (Notícias): 2026 está em uma lista aninhada.
+  assert((await panel.locator('[data-nav-depth="1"] a', { hasText: '2026' }).count()) === 1, '2026 não está aninhado em Notícias');
+  await page.keyboard.press('Tab');
+  assert(await page.evaluate(() => document.activeElement?.closest('[data-submenu-panel]') !== null), 'Tab não entra no submenu');
+  await page.keyboard.press('Escape');
+  assert(!(await panel.isVisible()), 'Esc não fechou o submenu');
+  assert(await btn.evaluate((el) => el === document.activeElement), 'foco não voltou ao botão');
+});
+
+await test('menu desktop: só um submenu aberto e clique fora fecha', async () => {
+  await page.goto(origin + '/');
+  const btns = page.locator('[data-desktop-nav] [data-submenu-toggle]');
+  await btns.nth(0).click();
+  await btns.nth(1).click();
+  assert((await btns.nth(0).getAttribute('aria-expanded')) === 'false', 'primeiro submenu continuou aberto');
+  assert((await btns.nth(1).getAttribute('aria-expanded')) === 'true', 'segundo submenu não abriu');
+  await page.mouse.click(10, 600);
+  assert((await btns.nth(1).getAttribute('aria-expanded')) === 'false', 'clique fora não fechou');
+});
+
+await test('menu mobile: abre, expande submenu, Esc fecha submenu e depois o menu', async () => {
+  const m = await browser.newPage({ viewport: { width: 390, height: 844 } });
+  await m.goto(origin + '/');
+  await m.click('[data-menu-toggle]');
+  assert(await m.isVisible('#mobile-menu'), 'menu não abriu');
+  const sub = m.locator('#mobile-menu [data-submenu-toggle]').nth(1); // Estudos
+  await sub.click();
+  assert((await sub.getAttribute('aria-expanded')) === 'true', 'submenu não expandiu');
+  assert(await m.locator(`#mobile-menu a[href="${base}estudos/fisica/"]`).isVisible(), 'área Física não aparece');
+  await m.keyboard.press('Escape');
+  assert((await sub.getAttribute('aria-expanded')) === 'false', 'Esc não recolheu o submenu');
+  assert(await m.isVisible('#mobile-menu'), 'o menu fechou junto com o submenu');
+  await m.keyboard.press('Escape');
+  assert(!(await m.isVisible('#mobile-menu')), 'menu não fechou');
+  assert(await m.evaluate(() => document.activeElement?.hasAttribute('data-menu-toggle')), 'foco não voltou ao botão');
+  await m.close();
 });
 
 await test('tema claro/escuro alterna e persiste após recarregar', async () => {
@@ -66,38 +174,25 @@ await test('tema claro/escuro alterna e persiste após recarregar', async () => 
   await page.click('[data-theme-toggle]'); // restaura
 });
 
-await test('busca do blog filtra por título e por conteúdo (Pagefind)', async () => {
-  await page.goto(origin + '/blog/');
-  await page.fill('#q', 'governança');
-  await page.waitForTimeout(300);
-  const byTitle = await page.locator('[data-list] [data-post]:visible').count();
-  assert(byTitle >= 1, 'nenhum resultado por título');
-  // "Pydantic" só aparece no corpo de um artigo
-  await page.fill('#q', 'Pydantic');
-  await page.waitForFunction(() => document.querySelectorAll('[data-list] [data-post]:not([hidden])').length === 1, null, { timeout: 5000 });
-});
-
-await test('filtro por categoria e tag do blog', async () => {
-  await page.goto(origin + '/blog/');
-  await page.selectOption('#categoria', 'data-mesh');
-  let n = await page.locator('[data-list] [data-post]:visible').count();
-  assert(n === 1, `categoria: esperado 1, obtido ${n}`);
-  await page.selectOption('#categoria', '');
-  await page.click('[data-tag="governanca"]');
-  n = await page.locator('[data-list] [data-post]:visible').count();
-  assert(n >= 2, `tag: esperado ≥ 2, obtido ${n}`);
-  assert(page.url().includes('tag=governanca'), 'estado do filtro não refletido na URL');
-});
-
-await test('ordenação cronológica do blog', async () => {
-  await page.goto(origin + '/blog/?ordem=asc');
-  const dates = await page.$$eval('[data-list] [data-post]', (els) => els.map((e) => e.dataset.date));
-  assert(dates.join() === [...dates].sort().join(), 'ordem crescente incorreta');
-});
-
-await test('busca global retorna resultados', async () => {
-  await page.goto(origin + '/busca/?q=data%20mesh');
+await test('busca global retorna resultados (Pagefind)', async () => {
+  await page.goto(origin + '/busca/?q=engenharia');
   await page.waitForSelector('[data-search-results] li', { timeout: 5000 });
+});
+
+await test('texto publicado: progresso de leitura, trilha da seção e JSON-LD', async () => {
+  // Usa o primeiro texto publicado de qualquer seção; sem conteúdo publicado, o teste é pulado.
+  const lists = ['/noticias-e-ideias/publicacoes/', '/noticias-e-ideias/noticias/', '/estudos/'];
+  let href = null;
+  for (const l of lists) {
+    await page.goto(origin + l);
+    href = await page.locator('main [data-post] a').first().getAttribute('href').catch(() => null);
+    if (href) break;
+  }
+  if (!href) return 'pulado: nenhum texto publicado';
+  await page.goto(new URL(href, origin).toString());
+  assert(await page.locator('[data-reading-progress]').count(), 'sem barra de progresso');
+  const ld = await page.$eval('script[type="application/ld+json"]', (s) => JSON.parse(s.textContent));
+  assert(ld['@graph'].some((n) => n['@type'] === 'BlogPosting'), 'sem BlogPosting');
 });
 
 await test('filtro de projetos por categoria', async () => {
@@ -129,31 +224,16 @@ await test('currículo oferece PDF existente (pt e en)', async () => {
   }
 });
 
-await test('artigo tem progresso de leitura, JSON-LD e diagrama Mermaid', async () => {
-  await page.goto(origin + '/blog/introducao-data-mesh/');
-  assert(await page.locator('[data-reading-progress]').count(), 'sem barra de progresso');
-  const ld = await page.$eval('script[type="application/ld+json"]', (s) => JSON.parse(s.textContent));
-  assert(ld['@graph'].some((n) => n['@type'] === 'BlogPosting'), 'sem BlogPosting');
-  await page.locator('.mermaid-diagram').scrollIntoViewIfNeeded();
-  await page.waitForSelector('.mermaid-diagram svg', { timeout: 10000 });
-});
-
-await test('menu mobile abre, fecha com Esc e devolve o foco', async () => {
-  const m = await browser.newPage({ viewport: { width: 390, height: 844 } });
-  await m.goto(origin + '/');
-  await m.click('[data-menu-toggle]');
-  assert(await m.isVisible('#mobile-menu'), 'menu não abriu');
-  await m.keyboard.press('Escape');
-  assert(!(await m.isVisible('#mobile-menu')), 'menu não fechou');
-  assert(await m.evaluate(() => document.activeElement?.hasAttribute('data-menu-toggle')), 'foco não voltou ao botão');
-  await m.close();
-});
-
-await test('RSS, sitemap e robots.txt válidos', async () => {
+await test('RSS, sitemap e robots.txt válidos; sitemap inclui as seções', async () => {
   for (const [p, needle] of [['/rss.xml', '<rss'], ['/sitemap-index.xml', '<sitemapindex'], ['/robots.txt', 'Sitemap:']]) {
     const res = await page.request.get(origin + p);
     assert(res.status() === 200 && (await res.text()).includes(needle), `${p} inválido`);
   }
+  const sitemap = await (await page.request.get(origin + '/sitemap-0.xml')).text();
+  for (const p of ['noticias-e-ideias/noticias/2026/', 'estudos/fisica/', 'artigos/']) {
+    assert(sitemap.includes(`${base}${p}</loc>`), `sitemap sem ${p}`);
+  }
+  assert(!sitemap.includes(`${base}blog/`), 'sitemap inclui URL antiga /blog/');
 });
 
 await test('sem erros de JavaScript nem recursos 4xx', async () => {

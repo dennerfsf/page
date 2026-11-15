@@ -2,14 +2,17 @@ import { defineCollection } from 'astro:content';
 import { glob } from 'astro/loaders';
 import { z } from 'astro/zod';
 import {
+  AREAS,
   BLOG_CATEGORIES,
   PROJECT_CATEGORIES,
   PROJECT_STATUS,
   PUBLICATION_TYPES,
+  type Area,
   type ProjectStatus,
   type PublicationType,
 } from './lib/taxonomy';
 
+const areas = Object.keys(AREAS) as [Area, ...Area[]];
 const projectStatus = Object.keys(PROJECT_STATUS) as [ProjectStatus, ...ProjectStatus[]];
 const publicationTypes = Object.keys(PUBLICATION_TYPES) as [PublicationType, ...PublicationType[]];
 
@@ -17,23 +20,32 @@ const publicationTypes = Object.keys(PUBLICATION_TYPES) as [PublicationType, ...
 const lang = z.enum(['pt-BR', 'en']).default('pt-BR');
 
 /**
- * Blog — notícias e artigos.
- * Arquivos: src/content/blog/<slug>.md ou .mdx  →  URL: /blog/<slug>/
+ * Notícias, publicações e estudos (campo `secao`).
+ * Organização sugerida das pastas (a URL vem do front matter, não da pasta):
+ *   src/content/blog/noticias/<ano>/<slug>.md      →  /noticias-e-ideias/noticias/<ano>/<slug>/
+ *   src/content/blog/publicacoes/<ano>/<slug>.md   →  /noticias-e-ideias/publicacoes/<slug>/
+ *   src/content/blog/estudos/<area>/<slug>.md      →  /estudos/<area>/<slug>/
+ * O id (slug) é o nome do arquivo, sem as pastas — por isso ele precisa ser único na coleção.
  */
 const blog = defineCollection({
-  loader: glob({ pattern: '**/[^_]*.{md,mdx}', base: './src/content/blog' }),
-  schema: ({ image }) =>
-    z.object({
+  loader: glob({
+    pattern: '**/[^_]*.{md,mdx}',
+    base: './src/content/blog',
+    generateId: ({ entry }) => entry.replace(/\.mdx?$/, '').split('/').pop()!,
+  }),
+  schema: ({ image }) => {
+    const base = z.object({
       title: z.string().max(120),
       description: z.string().max(300),
       date: z.coerce.date(),
       updated: z.coerce.date().optional(),
       category: z.enum(BLOG_CATEGORIES),
       tags: z.array(z.string()).default([]),
-      /** Caminho relativo ao arquivo, ex.: ../../assets/covers/minha-capa.jpg (otimizado no build). */
+      /** Caminho relativo ao arquivo, ex.: ../../../assets/covers/minha-capa.jpg (otimizado no build). */
       cover: image().optional(),
       coverAlt: z.string().default(''),
       author: z.string().optional(),
+      /** true = só aparece em `npm run dev`; fica fora do build de produção. */
       draft: z.boolean().default(false),
       featured: z.boolean().default(false),
       /** Marca o conteúdo como demonstrativo (exibe um aviso na página). */
@@ -41,7 +53,14 @@ const blog = defineCollection({
       lang,
       /** Reservado para séries de artigos (funcionalidade futura). */
       series: z.string().optional(),
-    }),
+    });
+    return z.discriminatedUnion('secao', [
+      base.extend({ secao: z.literal('noticias') }),
+      base.extend({ secao: z.literal('publicacoes') }),
+      // Em Estudos, a área é obrigatória.
+      base.extend({ secao: z.literal('estudos'), area: z.enum(areas) }),
+    ]);
+  },
 });
 
 /**
@@ -76,8 +95,8 @@ const projects = defineCollection({
 });
 
 /**
- * Produção científica.
- * Arquivos: src/content/publications/<slug>.md  →  URL: /publicacoes/<slug>/
+ * Artigos (produção científica).
+ * Arquivos: src/content/publications/<slug>.md  →  URL: /artigos/<slug>/
  * O corpo do Markdown é o resumo (abstract).
  */
 const publications = defineCollection({

@@ -1,0 +1,41 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Icon from '../../components/Icon.astro';
+import PageHeader from '../../components/PageHeader.astro';
+import { getPostsBySecao } from '../../lib/content';
+import { ROUTES, studyAreaPath } from '../../lib/routes';
+import { AREAS, type Area } from '../../lib/taxonomy';
+import { withBase } from '../../lib/url';
+
+const studies = await getPostsBySecao('estudos');
+const ICONS: Record<Area, string> = { engenharias: 'cpu', fisica: 'flask', computacao: 'code', economia: 'chart' };
+const areas = (Object.keys(AREAS) as Area[]).map((area) => ({
+  area,
+  label: AREAS[area],
+  count: studies.filter((p) => p.data.secao === 'estudos' && p.data.area === area).length,
+}));
+---
+
+<BaseLayout
+  title="Estudos"
+  description="Notas de estudo em engenharias, física, computação e economia."
+  crumbs={[{ label: 'Estudos', href: ROUTES.studies }]}
+>
+  <PageHeader eyebrow="Cero" title="Estudos" description="Notas de estudo, resumos e materiais de referência, organizados por área." />
+
+  <ul class="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+    {
+      areas.map(({ area, label, count }) => (
+        <li class="card card-hover relative p-6" data-study-area={area}>
+          <span class="mb-4 grid size-11 place-items-center rounded-xl bg-accent-strong/10 text-accent">
+            <Icon name={ICONS[area]} size={22} />
+          </span>
+          <h2 class="font-display text-lg font-semibold text-fg">
+            <a href={withBase(studyAreaPath(area))} class="after:absolute after:inset-0 after:content-[''] hover:text-link">{label}</a>
+          </h2>
+          <p class="mt-2 text-sm text-muted">{count > 0 ? `${count} ${count === 1 ? 'estudo' : 'estudos'}` : 'Em breve'}</p>
+        </li>
+      ))
+    }
+  </ul>
+</BaseLayout>

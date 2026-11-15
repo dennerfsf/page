@@ -10,6 +10,7 @@ import { SITE, profile } from '../data/site';
 import { l } from '../i18n/format';
 import { getPosts, getProjects, getPublications } from '../lib/content';
 import { websiteLd } from '../lib/seo';
+import { ROUTES } from '../lib/routes';
 import { withBase } from '../lib/url';
 
 const posts = (await getPosts()).slice(0, 3);
@@ -38,7 +39,7 @@ const featuredPubs = (pubs.some((p) => p.data.featured) ? pubs.filter((p) => p.d
           Esta página reúne assuntos e informações sobre desenvolvimento de software, engenharia de dados e analytics, ciência da computação e estudos.
         </p>
         <div class="mt-9 flex flex-wrap gap-3">
-          <a href={withBase('/blog/')} class="btn btn-primary"><Icon name="book" size={18} /> Ler o blog</a>
+          <a href={withBase(ROUTES.newsIdeas)} class="btn btn-primary"><Icon name="book" size={18} /> Notícias e ideias</a>
           <a href={withBase('/projetos/')} class="btn btn-ghost"><Icon name="layers" size={18} /> Projetos</a>
           <a href={withBase('/busca/')} class="btn btn-ghost"><Icon name="search" size={18} /> Buscar</a>
         </div>
@@ -50,7 +51,7 @@ const featuredPubs = (pubs.some((p) => p.data.featured) ? pubs.filter((p) => p.d
   <div class="container-site space-y-24 py-20 sm:space-y-32 sm:py-28">
     <!-- Temas -->
     <section aria-labelledby="temas" class="reveal">
-      <SectionHeading eyebrow="Temas" title="O que você encontra aqui" id="temas" link={{ href: '/blog/', label: 'Todos os artigos' }} />
+      <SectionHeading eyebrow="Temas" title="O que você encontra aqui" id="temas" link={{ href: ROUTES.newsIdeas, label: 'Notícias e ideias' }} />
       <ul class="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
         {
           SITE.topics.map((t) => (
@@ -66,11 +67,11 @@ const featuredPubs = (pubs.some((p) => p.data.featured) ? pubs.filter((p) => p.d
       </ul>
     </section>
 
-    <!-- Blog -->
+    <!-- Notícias e ideias / Estudos -->
     {
       posts.length > 0 && (
         <section aria-labelledby="blog" class="reveal">
-          <SectionHeading eyebrow="Blog" title="Últimas publicações" id="blog" link={{ href: '/blog/', label: 'Ir para o blog' }} />
+          <SectionHeading eyebrow="Notícias e ideias" title="Textos recentes" id="blog" link={{ href: ROUTES.newsIdeas, label: 'Ver notícias e ideias' }} />
           <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {posts.map((p) => <BlogCard post={p} />)}
           </div>
@@ -94,7 +95,7 @@ const featuredPubs = (pubs.some((p) => p.data.featured) ? pubs.filter((p) => p.d
     {
       featuredPubs.length > 0 && (
         <section aria-labelledby="ciencia" class="reveal">
-          <SectionHeading eyebrow="Pesquisa" title="Produção científica" id="ciencia" link={{ href: '/publicacoes/', label: 'Todas as publicações' }} />
+          <SectionHeading eyebrow="Produção científica" title="Artigos" id="ciencia" link={{ href: ROUTES.articles, label: 'Todos os artigos' }} />
           <div class="grid gap-4 lg:grid-cols-2">
             {featuredPubs.map((p) => <PublicationItem pub={p} compact />)}
           </div>

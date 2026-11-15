@@ -1,0 +1,40 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import EmptyState from '../../components/EmptyState.astro';
+import PageHeader from '../../components/PageHeader.astro';
+import { getPosts } from '../../lib/content';
+import { ROUTES, categoryPath } from '../../lib/routes';
+import { BLOG_CATEGORIES, SECOES, type Secao } from '../../lib/taxonomy';
+import { withBase } from '../../lib/url';
+
+const posts = await getPosts();
+const used = BLOG_CATEGORIES.map((category) => {
+  const items = posts.filter((p) => p.data.category === category);
+  const bySecao = (Object.keys(SECOES) as Secao[])
+    .map((s) => ({ label: SECOES[s], n: items.filter((p) => p.data.secao === s).length }))
+    .filter((x) => x.n > 0);
+  return { category, total: items.length, bySecao };
+}).filter((c) => c.total > 0);
+---
+
+<BaseLayout
+  title="Categorias"
+  description="Todas as categorias de notícias, publicações e estudos."
+  crumbs={[{ label: 'Categorias', href: ROUTES.categories }]}
+>
+  <PageHeader eyebrow="Navegar por" title="Categorias" description="Cada categoria reúne textos de Notícias, Publicações e Estudos." />
+  {
+    used.length > 0 ? (
+      <ul class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {used.map(({ category, total, bySecao }) => (
+          <li class="card card-hover relative p-5">
+            <a href={withBase(categoryPath(category))} class="font-display text-lg font-semibold text-fg after:absolute after:inset-0 after:content-[''] hover:text-link">{category}</a>
+            <p class="mt-1 text-sm text-muted">{total} {total === 1 ? 'texto' : 'textos'} · {bySecao.map((s) => `${s.label} (${s.n})`).join(' · ')}</p>
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <EmptyState text="As categorias aparecem aqui quando houver textos publicados." />
+    )
+  }
+</BaseLayout>

@@ -1,0 +1,19 @@
+---
+import PostLayout from '../../../../layouts/PostLayout.astro';
+import { getPosts, type Post } from '../../../../lib/content';
+import { postYear } from '../../../../lib/routes';
+
+export async function getStaticPaths() {
+  const all = await getPosts();
+  const news = all.filter((p) => p.data.secao === 'noticias');
+  return news.map((post) => ({
+    params: { ano: String(postYear(post)), slug: post.id },
+    // "Anterior/próximo" percorre as notícias do mesmo ano.
+    props: { post, siblings: news.filter((p) => postYear(p) === postYear(post)), all },
+  }));
+}
+
+interface Props { post: Post; siblings: Post[]; all: Post[] }
+---
+
+<PostLayout {...Astro.props} />

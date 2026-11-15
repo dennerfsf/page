@@ -4,12 +4,25 @@ import Logo from './Logo.astro';
 import SocialLinks from './SocialLinks.astro';
 import { NAV, SITE, profile } from '../data/site';
 import { t, type Lang } from '../i18n/ui';
+import { ROUTES } from '../lib/routes';
 import { withBase } from '../lib/url';
 
 interface Props { lang?: Lang }
 const { lang = 'pt-BR' } = Astro.props;
 const tr = t(lang);
 const year = new Date().getFullYear();
+
+// Coluna "Conteúdo": as seções do menu (exceto "Sobre") com seu primeiro nível, mais categorias e tags.
+const sections = NAV.filter((item) => item.key !== 'nav.aboutMenu');
+const contentLinks = [
+  ...sections.flatMap((item) => [
+    { label: tr(item.key), href: item.href, sub: false },
+    ...(item.children ?? []).map((c) => ({ label: tr(c.key), href: c.href, sub: true })),
+  ]),
+  { label: tr('nav.categories'), href: ROUTES.categories, sub: false },
+  { label: tr('nav.tags'), href: ROUTES.tags, sub: false },
+];
+const aboutLinks = NAV.find((item) => item.key === 'nav.aboutMenu')?.children ?? [];
 ---
 
 <footer data-site-footer class="mt-24 border-t border-border bg-surface/60">
@@ -20,24 +33,24 @@ const year = new Date().getFullYear();
       <SocialLinks />
     </div>
 
-    <nav aria-labelledby="footer-nav">
-      <h2 id="footer-nav" class="mb-3 font-display text-sm font-semibold text-fg">Navegação</h2>
+    <nav aria-labelledby="footer-content">
+      <h2 id="footer-content" class="mb-3 font-display text-sm font-semibold text-fg">{tr('nav.content')}</h2>
       <ul class="space-y-2 text-sm">
         {
-          NAV.slice(0, 4).map((item) => (
+          contentLinks.map((item) => (
             <li>
-              <a class="text-muted hover:text-link" href={withBase(item.href)}>{tr(item.key)}</a>
+              <a class:list={['text-muted hover:text-link', item.sub && 'pl-3']} href={withBase(item.href)}>{item.label}</a>
             </li>
           ))
         }
       </ul>
     </nav>
 
-    <nav aria-labelledby="footer-content">
-      <h2 id="footer-content" class="mb-3 font-display text-sm font-semibold text-fg">Conteúdo</h2>
+    <nav aria-labelledby="footer-about">
+      <h2 id="footer-about" class="mb-3 font-display text-sm font-semibold text-fg">{tr('nav.aboutMenu')}</h2>
       <ul class="space-y-2 text-sm">
         {
-          NAV.slice(4).map((item) => (
+          aboutLinks.map((item) => (
             <li>
               <a class="text-muted hover:text-link" href={withBase(item.href)}>{tr(item.key)}</a>
             </li>
@@ -52,7 +65,7 @@ const year = new Date().getFullYear();
       <ul class="space-y-2 text-sm">
         <li>
           <a class="inline-flex items-center gap-2 text-muted hover:text-link" href={withBase('/rss.xml')}>
-            <Icon name="rss" size={16} /> Feed RSS do blog
+            <Icon name="rss" size={16} /> Feed RSS: notícias e publicações
           </a>
         </li>
         {

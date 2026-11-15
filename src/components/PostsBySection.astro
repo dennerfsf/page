@@ -1,0 +1,33 @@
+---
+/**
+ * Lista textos agrupados por seção (Notícias, Publicações, Estudos), na ordem do menu.
+ * Usada nas páginas de categoria e de tag, para manter a estrutura do site visível.
+ */
+import BlogCard from './BlogCard.astro';
+import { type Post } from '../lib/content';
+import { ROUTES } from '../lib/routes';
+import { SECOES, type Secao } from '../lib/taxonomy';
+import { withBase } from '../lib/url';
+
+interface Props { posts: Post[] }
+const { posts } = Astro.props;
+const LINKS: Record<Secao, string> = { noticias: ROUTES.news, publicacoes: ROUTES.ideas, estudos: ROUTES.studies };
+const groups = (Object.keys(SECOES) as Secao[])
+  .map((secao) => ({ secao, items: posts.filter((p) => p.data.secao === secao) }))
+  .filter((g) => g.items.length > 0);
+---
+
+<div class="grid gap-14">
+  {
+    groups.map(({ secao, items }) => (
+      <section aria-labelledby={`secao-${secao}`}>
+        <h2 id={`secao-${secao}`} class="mb-5 font-display text-2xl font-bold text-fg">
+          <a href={withBase(LINKS[secao])} class="hover:text-link">{SECOES[secao]}</a>
+        </h2>
+        <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {items.map((post) => <BlogCard post={post} />)}
+        </div>
+      </section>
+    ))
+  }
+</div>

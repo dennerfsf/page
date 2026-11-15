@@ -1,6 +1,6 @@
-# Denner Ferreira — Portfólio, Currículo e Blog
+# Cero — software, dados, computação e estudos
 
-Site pessoal estático que reúne **portfólio profissional, currículo (web + PDF), produção científica e blog**, publicado gratuitamente no **GitHub Pages**. Todo o conteúdo é editado por arquivos no próprio repositório: um commit na branch `main` publica o site automaticamente.
+Site estático que reúne **notícias e ideias, estudos e artigos** sobre desenvolvimento de software, engenharia de dados e analytics, ciência da computação e estudos, além da parte pessoal do autor (**sobre, currículo web + PDF, projetos**), publicado gratuitamente no **GitHub Pages**. Todo o conteúdo é editado por arquivos no próprio repositório: um commit na branch `main` publica o site automaticamente.
 
 - **Endereço padrão:** https://dennerfsf.github.io/page/
 - **Sem servidor, banco de dados nem serviços pagos:** o HTML é gerado no build.
@@ -15,7 +15,7 @@ Site pessoal estático que reúne **portfólio profissional, currículo (web + P
 4. [Instalação](#4-instalação)
 5. [Execução local](#5-execução-local)
 6. [Build de produção e validação](#6-build-de-produção-e-validação)
-7. [Como criar um artigo ou notícia](#7-como-criar-um-artigo-ou-notícia)
+7. [Tarefas comuns: publicar uma notícia, publicação, estudo ou artigo](#7-tarefas-comuns-publicar-uma-notícia-publicação-estudo-ou-artigo)
 8. [Como adicionar um projeto](#8-como-adicionar-um-projeto)
 9. [Como atualizar o currículo](#9-como-atualizar-o-currículo)
 10. [Como inserir uma publicação científica](#10-como-inserir-uma-publicação-científica)
@@ -38,8 +38,10 @@ Site pessoal estático que reúne **portfólio profissional, currículo (web + P
 | Sobre (linha do tempo) | `/sobre/` | `profile.json`, `experience.json`, `education.json` |
 | Currículo (pt / en) + PDF | `/curriculo/`, `/en/resume/` | `src/data/*.json` + projetos e publicações |
 | Projetos | `/projetos/` e `/projetos/<slug>/` | `src/content/projects/*.md` |
-| Blog | `/blog/`, `/blog/<slug>/`, `/blog/categoria/…`, `/blog/tag/…` | `src/content/blog/*.md(x)` |
-| Produção científica | `/publicacoes/` e `/publicacoes/<slug>/` | `src/content/publications/*.md` + `research.json` |
+| Notícias e ideias | `/noticias-e-ideias/`, `/noticias-e-ideias/noticias/<ano>/<slug>/`, `/noticias-e-ideias/publicacoes/<slug>/` | `src/content/blog/` (`secao: noticias` / `publicacoes`) |
+| Estudos | `/estudos/`, `/estudos/<area>/<slug>/` | `src/content/blog/` (`secao: estudos` + `area`) |
+| Artigos (produção científica) | `/artigos/` e `/artigos/<slug>/` | `src/content/publications/*.md` + `research.json` |
+| Categorias e tags | `/categorias/…`, `/tags/…` | geradas a partir de `category` e `tags` |
 | Competências | `/competencias/` | `skills.json`, `certifications.json`, `languages.json` |
 | Contato | `/contato/` | `profile.json` |
 | Busca | `/busca/` | índice estático gerado pelo Pagefind |
@@ -124,32 +126,52 @@ $env:SITE_URL="https://seudominio.com.br"; $env:BASE_PATH=""; npm run build
 
 Também é possível criar um arquivo `.env` (veja `.env.example`).
 
-## 7. Como criar um artigo ou notícia
+## 7. Tarefas comuns: publicar uma notícia, publicação, estudo ou artigo
 
-1. Copie `src/content/blog/_modelo.md` para `src/content/blog/meu-artigo.md` (o nome do arquivo vira a URL: `/blog/meu-artigo/`). Use `.mdx` se quiser HTML/componentes no texto.
+O menu do site tem três seções de conteúdo: **Notícias e ideias** (Notícias e Publicações), **Estudos** e **Artigos**.
+Notícias, publicações e estudos ficam na mesma coleção (`src/content/blog/`), diferenciados pelo campo `secao`; artigos científicos ficam em `src/content/publications/`.
+
+| O que publicar | Pasta | Front matter obrigatório | URL gerada |
+| --- | --- | --- | --- |
+| Notícia | `src/content/blog/noticias/<ano>/` | `secao: noticias` | `/noticias-e-ideias/noticias/<ano>/<arquivo>/` |
+| Publicação (texto técnico ou de opinião) | `src/content/blog/publicacoes/<ano>/` | `secao: publicacoes` | `/noticias-e-ideias/publicacoes/<arquivo>/` |
+| Estudo | `src/content/blog/estudos/<area>/` | `secao: estudos` + `area` | `/estudos/<area>/<arquivo>/` |
+| Artigo científico | `src/content/publications/` | ver abaixo | `/artigos/<arquivo>/` |
+
+**Notícia, publicação ou estudo**
+
+1. Copie `src/content/blog/_modelo.md` para a pasta da tabela. O nome do arquivo vira o fim da URL e precisa ser **único** em toda a coleção (ex.: `sobre-datamesh-como-comecar.md`). Use `.mdx` se quiser HTML/componentes no texto.
 2. Preencha o cabeçalho:
 
    ```yaml
    ---
-   title: "Introdução ao Data Mesh"
-   description: "Conceitos fundamentais e aplicações práticas."
-   date: "2026-11-08"
-   category: "Engenharia de Dados"
+   title: "Sobre Datamesh: Como começar"
+   description: "Resumo de 1–2 frases (cards, buscadores e redes sociais)."
+   date: "2026-11-15"          # nas notícias, o ano desta data define a página do ano
+   secao: publicacoes          # noticias | publicacoes | estudos
+   # area: computacao          # obrigatório só em estudos: engenharias | fisica | computacao | economia
+   category: "Data Mesh"       # uma das BLOG_CATEGORIES de src/lib/taxonomy.ts
    tags:
      - Data Mesh
-     - Governança
-   cover: ../../assets/covers/data-mesh.jpg   # opcional
-   coverAlt: "Diagrama de domínios de dados"  # descreva a imagem
-   draft: false
-   featured: true
+   cover: ../../../../assets/covers/data-mesh.jpg   # opcional, relativo ao arquivo
+   coverAlt: "Diagrama de domínios de dados"        # descreva a imagem
+   draft: false                # true = só aparece em `npm run dev`
+   featured: false
    ---
    ```
 
-   - `category` precisa ser uma das categorias de `src/lib/taxonomy.ts` (`BLOG_CATEGORIES`). Para criar outra, basta incluí-la nessa lista.
+   - O build falha se `secao` faltar, se `area` faltar em um estudo ou se `category` não estiver em `BLOG_CATEGORIES`.
+   - A **pasta** só organiza os arquivos; a URL vem de `secao`, `area` e `date`.
+   - **Anos novos:** uma notícia com data em 2027 cria a página `/noticias-e-ideias/noticias/2027/` e o item "2027" no menu no próximo build, sem editar o menu. Para manter uma página de ano mesmo sem notícias, inclua o ano em `NEWS_YEARS` (`src/lib/taxonomy.ts`).
    - Sem `cover`, uma arte geométrica é gerada automaticamente.
-   - `draft: true` mantém o texto fora do site publicado.
 3. Escreva em Markdown. Recursos suportados: tabelas, citações, imagens, blocos de código com destaque (` ```python `) e diagramas (` ```mermaid `).
-4. Rode `npm run dev` para revisar, faça commit e push. O tempo de leitura, as páginas de categoria/tag, o RSS e os artigos relacionados são gerados automaticamente.
+4. Rode `npm run dev` para revisar (rascunhos aparecem só aí), mude `draft` para `false`, faça commit e push. Menu, páginas de ano/área, categorias (`/categorias/`), tags (`/tags/`), RSS (notícias e publicações), busca e sitemap são atualizados automaticamente.
+
+**Artigo científico** — veja a [seção 10](#10-como-inserir-uma-publicação-científica).
+
+**Menu:** a estrutura fica em `NAV` (`src/data/site.ts`). Itens com `children` viram submenus; `auto` preenche anos e textos recentes a partir do conteúdo (`src/lib/nav.ts`, até 5 textos por grupo).
+
+**URLs antigas:** os redirecionamentos de `/blog/…` e `/publicacoes/…` estão em `src/data/redirects.mjs`. Ao renomear uma URL publicada, acrescente a antiga ali.
 
 ## 8. Como adicionar um projeto
 
@@ -180,7 +202,9 @@ Remova `"demo": true` de cada item depois de preenchê-lo com dados reais. O PDF
 
 ## 10. Como inserir uma publicação científica
 
-1. Copie `src/content/publications/_modelo.md` para um novo arquivo, ex.: `ferreira-2026-governanca.md`.
+Publicações científicas aparecem em **Artigos** (`/artigos/`), no currículo e na Home.
+
+1. Copie `src/content/publications/_modelo.md` para um novo arquivo, ex.: `ferreira-2026-governanca.md` (URL: `/artigos/ferreira-2026-governanca/`).
 2. Preencha `title`, `type`, `authors`, `year`, `venue`, `keywords` e, quando houver, `doi` (formato `10.xxxx/...`, validado no build), `url` e `pdf`.
 3. Escreva o resumo (abstract) no corpo do arquivo.
 4. PDFs: coloque o arquivo em `public/papers/` e use `pdf: "/papers/arquivo.pdf"` — **somente se a distribuição for permitida** pela editora.
@@ -274,15 +298,18 @@ Em cerca de 1–2 minutos o workflow publica a nova versão. Também é possíve
 │   ├── assets/covers/             # imagens otimizadas no build
 │   ├── components/                # Header, Footer, BlogCard, ProjectCard, Resume, Timeline, …
 │   ├── content/
-│   │   ├── blog/                  # artigos (.md / .mdx)
+│   │   ├── blog/                  # notícias, publicações e estudos (campo `secao`)
+│   │   │   ├── noticias/<ano>/
+│   │   │   ├── publicacoes/<ano>/
+│   │   │   └── estudos/<area>/
 │   │   ├── projects/              # projetos
-│   │   └── publications/          # produção científica
+│   │   └── publications/          # artigos (produção científica)
 │   ├── content.config.ts          # schemas das coleções
-│   ├── data/                      # profile, experience, education, skills, … (JSON)
+│   ├── data/                      # site.ts (menu), redirects.mjs, profile, experience, skills, … (JSON)
 │   ├── i18n/                      # textos de interface (pt-BR / en) e formatação
-│   ├── layouts/BaseLayout.astro
-│   ├── lib/                       # url (base path), seo (JSON-LD), content, taxonomy, cv
-│   ├── pages/                     # rotas (index, sobre, curriculo, projetos/, blog/, publicacoes/, …)
+│   ├── layouts/                   # BaseLayout e PostLayout (página de texto)
+│   ├── lib/                       # url (base path), routes (URLs das seções), nav (menu), seo, content, taxonomy, cv
+│   ├── pages/                     # rotas (index, noticias-e-ideias/, estudos/, artigos/, categorias/, tags/, sobre, …)
 │   ├── scripts/                   # JS do cliente (tema, menu, busca)
 │   └── styles/global.css          # tokens de cor, tema, tipografia e impressão
 ├── astro.config.mjs
@@ -295,7 +322,7 @@ Em cerca de 1–2 minutos o workflow publica a nova versão. Também é possíve
 
 Para validar o layout, o site inclui exemplos marcados com o selo **Exemplo** (`demo: true`):
 
-- 3 artigos de blog, 4 projetos (1 confidencial) e 2 publicações científicas;
+- 4 projetos (1 confidencial) — os textos e publicações científicas de exemplo foram removidos;
 - experiências, certificação, idiomas e itens de pesquisa com campos "a informar".
 
 Os títulos, organizações e veículos de publicação de exemplo são fictícios e estão identificados como tal — **nenhum deve ser divulgado como real**. Substitua-os ou apague os arquivos antes de divulgar o site. Para encontrar todos: pesquise por `demo` em `src/`.
@@ -304,7 +331,7 @@ Os títulos, organizações e veículos de publicação de exemplo são fictíci
 
 A arquitetura já reserva pontos de extensão, sem implementá-los:
 
-- **Comentários (Giscus):** configure `SITE.giscus` em `src/data/site.ts` e insira o widget no local marcado em `src/pages/blog/[...id].astro`.
+- **Comentários (Giscus):** configure `SITE.giscus` em `src/data/site.ts` e insira o widget no local marcado em `src/layouts/PostLayout.astro`.
 - **Analytics:** `SITE.analytics` em `src/data/site.ts` (prefira soluções sem cookies).
 - **Séries de artigos:** campo `series` já existe no schema do blog.
 - **Palestras, newsletter, dashboard de projetos, GitHub API, CMS baseado em Git (ex.: Decap/Sveltia):** podem ser adicionados como novas coleções/páginas sem alterar as existentes.

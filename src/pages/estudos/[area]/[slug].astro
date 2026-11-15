@@ -1,0 +1,20 @@
+---
+import PostLayout from '../../../layouts/PostLayout.astro';
+import { getPosts, type Post } from '../../../lib/content';
+
+export async function getStaticPaths() {
+  const all = await getPosts();
+  const studies = all.filter((p) => p.data.secao === 'estudos');
+  return studies.map((post) => {
+    const area = post.data.secao === 'estudos' ? post.data.area : '';
+    return {
+      params: { area, slug: post.id },
+      props: { post, siblings: studies.filter((p) => p.data.secao === 'estudos' && p.data.area === area), all },
+    };
+  });
+}
+
+interface Props { post: Post; siblings: Post[]; all: Post[] }
+---
+
+<PostLayout {...Astro.props} />

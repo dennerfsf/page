@@ -1,0 +1,127 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import DemoBadge from '../../components/DemoBadge.astro';
+import Icon from '../../components/Icon.astro';
+import PageHeader from '../../components/PageHeader.astro';
+import PublicationItem from '../../components/PublicationItem.astro';
+import SocialLinks from '../../components/SocialLinks.astro';
+import { socialLinks } from '../../data/site';
+import { getPublications } from '../../lib/content';
+import { ROUTES } from '../../lib/routes';
+import { research } from '../../lib/data';
+import { PUBLICATION_TYPES, type PublicationType } from '../../lib/taxonomy';
+
+const pubs = await getPublications();
+const types = (Object.keys(PUBLICATION_TYPES) as PublicationType[]).filter((t) => pubs.some((p) => p.data.type === t));
+const academic = socialLinks(['orcid', 'scholar', 'researchgate', 'lattes']);
+---
+
+<BaseLayout
+  title="Artigos — produção científica"
+  description="Artigos, trabalhos em eventos, projetos de pesquisa e trajetória acadêmica."
+  crumbs={[{ label: 'Artigos', href: ROUTES.articles }]}
+>
+  <PageHeader
+    eyebrow="Produção científica"
+    title="Artigos"
+    description="Artigos publicados, trabalhos apresentados em eventos, projetos e grupos de pesquisa."
+  >
+    <div class="mt-6">
+      {
+        academic.length > 0 ? (
+          <SocialLinks only={['orcid', 'scholar', 'researchgate', 'lattes']} variant="labels" />
+        ) : (
+          <p class="text-sm text-muted">
+            Perfis acadêmicos (ORCID, Google Scholar, ResearchGate, Lattes) aparecerão aqui quando preenchidos em <code class="font-mono">src/data/profile.json</code>.
+          </p>
+        )
+      }
+    </div>
+  </PageHeader>
+
+  <div class="grid gap-14">
+    {
+      types.length > 1 && (
+        <nav aria-label="Tipos de publicação" class="no-print -mt-4">
+          <ul class="flex flex-wrap gap-2">
+            {types.map((t) => (
+              <li><a href={`#${t}`} class="chip hover:border-link hover:text-link">{PUBLICATION_TYPES[t]}</a></li>
+            ))}
+          </ul>
+        </nav>
+      )
+    }
+
+    {
+      types.map((type) => (
+        <section aria-labelledby={type}>
+          <h2 id={type} class="mb-5 font-display text-2xl font-bold text-fg">{PUBLICATION_TYPES[type]}</h2>
+          <div class="grid gap-4">
+            {pubs.filter((p) => p.data.type === type).map((pub) => <PublicationItem pub={pub} />)}
+          </div>
+        </section>
+      ))
+    }
+    {pubs.length === 0 && <p class="card p-8 text-center text-muted">Nenhum artigo publicado ainda.</p>}
+
+    <div class="grid gap-6 lg:grid-cols-3">
+      <section aria-labelledby="projetos-pesquisa" class="card p-6">
+        <h2 id="projetos-pesquisa" class="mb-4 flex items-center gap-2 font-display text-lg font-semibold text-fg">
+          <Icon name="flask" class="text-accent" /> Projetos de pesquisa
+        </h2>
+        <ul class="space-y-4">
+          {
+            research.projects.map((p) => (
+              <li>
+                <p class="flex flex-wrap items-center gap-2 font-medium text-fg">
+                  {p.url ? <a class="link" href={p.url}>{p.title}</a> : p.title}
+                  <DemoBadge show={p.demo} />
+                </p>
+                <p class="text-sm text-muted">{[p.role, p.institution, p.period].filter(Boolean).join(' · ')}</p>
+                {p.description && <p class="mt-1 text-sm text-fg-soft">{p.description}</p>}
+              </li>
+            ))
+          }
+        </ul>
+      </section>
+
+      <section aria-labelledby="grupos" class="card p-6">
+        <h2 id="grupos" class="mb-4 flex items-center gap-2 font-display text-lg font-semibold text-fg">
+          <Icon name="users" class="text-accent" /> Grupos de pesquisa
+        </h2>
+        <ul class="space-y-4">
+          {
+            research.groups.map((g) => (
+              <li>
+                <p class="flex flex-wrap items-center gap-2 font-medium text-fg">
+                  {g.url ? <a class="link" href={g.url}>{g.name}</a> : g.name}
+                  <DemoBadge show={g.demo} />
+                </p>
+                <p class="text-sm text-muted">{[g.role, g.institution].filter(Boolean).join(' · ')}</p>
+              </li>
+            ))
+          }
+        </ul>
+      </section>
+
+      <section aria-labelledby="eventos" class="card p-6">
+        <h2 id="eventos" class="mb-4 flex items-center gap-2 font-display text-lg font-semibold text-fg">
+          <Icon name="mic" class="text-accent" /> Congressos e eventos
+        </h2>
+        <ul class="space-y-4">
+          {
+            research.events.map((e) => (
+              <li>
+                <p class="flex flex-wrap items-center gap-2 font-medium text-fg">
+                  {e.url ? <a class="link" href={e.url}>{e.name}</a> : e.name}
+                  <DemoBadge show={e.demo} />
+                </p>
+                <p class="text-sm text-muted">{[e.year, e.participation, e.location].filter(Boolean).join(' · ')}</p>
+              </li>
+            ))
+          }
+        </ul>
+      </section>
+    </div>
+  </div>
+</BaseLayout>

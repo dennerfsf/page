@@ -25,24 +25,64 @@ document.querySelectorAll<HTMLButtonElement>('[data-theme-toggle]').forEach((btn
 });
 syncThemeButtons();
 
+/* ---------- Submenus (desktop: suspensos; celular: recolhíveis) ---------- */
+type Submenu = { item: HTMLElement; btn: HTMLButtonElement; panel: HTMLElement; desktop: boolean };
+const submenus: Submenu[] = [...document.querySelectorAll<HTMLElement>('[data-submenu]')].map((item) => {
+  const btn = item.querySelector<HTMLButtonElement>('[data-submenu-toggle]')!;
+  const panel = document.getElementById(btn.getAttribute('aria-controls')!)!;
+  return { item, btn, panel, desktop: Boolean(item.closest('[data-desktop-nav]')) };
+});
+const setSubmenu = (s: Submenu, open: boolean) => {
+  s.btn.setAttribute('aria-expanded', String(open));
+  s.panel.hidden = !open;
+};
+for (const s of submenus) {
+  s.btn.addEventListener('click', () => {
+    const open = s.panel.hidden;
+    // No desktop, só um submenu aberto por vez.
+    if (open && s.desktop) submenus.filter((o) => o.desktop && o !== s).forEach((o) => setSubmenu(o, false));
+    setSubmenu(s, open);
+  });
+  // Desktop: fecha quando o foco sai do item (ex.: Tab para o próximo item do menu).
+  if (s.desktop) {
+    s.item.addEventListener('focusout', (e) => {
+      if (!s.item.contains(e.relatedTarget as Node | null)) setSubmenu(s, false);
+    });
+  }
+}
+// Desktop: clique fora fecha os submenus abertos.
+document.addEventListener('click', (e) => {
+  for (const s of submenus) if (s.desktop && !s.panel.hidden && !s.item.contains(e.target as Node)) setSubmenu(s, false);
+});
+
 /* ---------- Menu móvel ---------- */
 const menuBtn = document.querySelector<HTMLButtonElement>('[data-menu-toggle]');
 const menu = document.getElementById('mobile-menu');
+const setMenuOpen = (open: boolean) => {
+  if (!menuBtn || !menu) return;
+  menuBtn.setAttribute('aria-expanded', String(open));
+  menuBtn.setAttribute('aria-label', (open ? menuBtn.dataset.labelClose : menuBtn.dataset.labelOpen) ?? '');
+  menu.hidden = !open;
+};
 if (menuBtn && menu) {
-  const setOpen = (open: boolean) => {
-    menuBtn.setAttribute('aria-expanded', String(open));
-    menuBtn.setAttribute('aria-label', (open ? menuBtn.dataset.labelClose : menuBtn.dataset.labelOpen) ?? '');
-    menu.hidden = !open;
-  };
-  menuBtn.addEventListener('click', () => setOpen(menu.hidden));
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && !menu.hidden) {
-      setOpen(false);
-      menuBtn.focus();
-    }
-  });
-  window.matchMedia('(min-width: 1280px)').addEventListener('change', (e) => e.matches && setOpen(false));
+  menuBtn.addEventListener('click', () => setMenuOpen(menu.hidden));
+  window.matchMedia('(min-width: 1024px)').addEventListener('change', (e) => e.matches && setMenuOpen(false));
 }
+
+/* Esc: fecha primeiro o submenu aberto (devolvendo o foco ao seu botão); depois, o menu móvel. */
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape') return;
+  const open = submenus.find((s) => !s.panel.hidden && (s.desktop || !menu?.hidden));
+  if (open) {
+    setSubmenu(open, false);
+    open.btn.focus();
+    return;
+  }
+  if (menuBtn && menu && !menu.hidden) {
+    setMenuOpen(false);
+    menuBtn.focus();
+  }
+});
 
 /* ---------- Voltar ao topo ---------- */
 const toTop = document.querySelector<HTMLAnchorElement>('[data-back-to-top]');

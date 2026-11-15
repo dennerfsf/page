@@ -1,0 +1,10 @@
+---
+/** Aviso exibido quando uma seção, ano ou área ainda não tem conteúdo publicado. */
+interface Props { title?: string; text?: string }
+const { title = 'Em breve', text } = Astro.props;
+---
+
+<div class="card p-8 text-center" data-empty-state>
+  <p class="font-display text-lg font-semibold text-fg">{title}</p>
+  {text && <p class="mt-1 text-sm text-muted">{text}</p>}
+</div>

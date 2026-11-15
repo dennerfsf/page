@@ -1,5 +1,5 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
-import { slugify } from './taxonomy';
+import { NEWS_YEARS, slugify, type Area, type Secao } from './taxonomy';
 
 export type Post = CollectionEntry<'blog'>;
 export type Project = CollectionEntry<'projects'>;
@@ -11,6 +11,26 @@ const visible = <T extends { data: { draft: boolean } }>(entry: T) => import.met
 export async function getPosts(): Promise<Post[]> {
   const posts = await getCollection('blog', visible);
   return posts.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+}
+
+/** Textos de uma seção (notícias, publicações ou estudos), mais recentes primeiro. */
+export async function getPostsBySecao(secao: Secao): Promise<Post[]> {
+  return (await getPosts()).filter((p) => p.data.secao === secao);
+}
+
+/** Estudos de uma área. */
+export async function getStudies(area: Area): Promise<Post[]> {
+  return (await getPostsBySecao('estudos')).filter((p) => p.data.secao === 'estudos' && p.data.area === area);
+}
+
+/**
+ * Anos com página em Notícias, do mais recente ao mais antigo:
+ * os anos fixos de NEWS_YEARS mais os anos das notícias publicadas.
+ */
+export function newsYears(news: Post[]): number[] {
+  const years = new Set<number>(NEWS_YEARS);
+  for (const p of news) years.add(p.data.date.getUTCFullYear());
+  return [...years].sort((a, b) => b - a);
 }
 
 export async function getProjects(): Promise<Project[]> {

@@ -1,15 +1,18 @@
 ---
 import Icon from './Icon.astro';
 import Logo from './Logo.astro';
+import NavTree from './NavTree.astro';
 import ThemeToggle from './ThemeToggle.astro';
-import { NAV } from '../data/site';
 import { t, type Lang } from '../i18n/ui';
+import { buildNav, containsPath } from '../lib/nav';
 import { isActivePath, withBase } from '../lib/url';
 
 interface Props { lang?: Lang }
 const { lang = 'pt-BR' } = Astro.props;
 const tr = t(lang);
 const current = Astro.url.pathname;
+const nav = await buildNav(lang);
+const active = (href: string) => isActivePath(current, href);
 ---
 
 <header
@@ -19,23 +22,38 @@ const current = Astro.url.pathname;
   <div class="container-site flex h-16 items-center justify-between gap-4">
     <Logo />
 
-    <nav aria-label={tr('nav.main')} class="hidden xl:block">
+    <nav aria-label={tr('nav.main')} class="hidden lg:block" data-desktop-nav>
       <ul class="flex items-center gap-1">
         {
-          NAV.map((item) => {
-            const active = isActivePath(current, item.href);
-            return (
-              <li>
-                <a
-                  href={withBase(item.href)}
-                  aria-current={active ? 'page' : undefined}
-                  class:list={[
-                    'relative rounded-lg px-3 py-2 text-sm font-medium transition-colors',
-                    active ? 'text-fg' : 'text-muted hover:text-fg',
-                    active && 'after:absolute after:inset-x-3 after:-bottom-[1px] after:h-0.5 after:rounded-full after:bg-accent-strong',
-                  ]}
+          nav.map((item, i) => {
+            const on = containsPath(item, active);
+            const itemClass = [
+              'relative inline-flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+              on ? 'text-fg' : 'text-muted hover:text-fg',
+              on && 'after:absolute after:inset-x-3 after:-bottom-[1px] after:h-0.5 after:rounded-full after:bg-accent-strong',
+            ];
+            return item.children ? (
+              <li class="relative" data-submenu>
+                <button type="button" class:list={[itemClass, 'group cursor-pointer']} aria-expanded="false" aria-controls={`submenu-${i}`} data-submenu-toggle>
+                  {item.label}
+                  <Icon name="chevron-down" size={16} class="transition-transform group-aria-expanded:rotate-180" />
+                </button>
+                <div
+                  id={`submenu-${i}`}
+                  hidden
+                  data-submenu-panel
+                  class="absolute left-0 top-full z-50 mt-2 max-h-[calc(100dvh-6rem)] w-80 overflow-y-auto rounded-2xl border border-border bg-surface p-2 shadow-xl shadow-black/10"
                 >
-                  {tr(item.key)}
+                  <a href={withBase(item.href)} class="mb-1 flex items-center justify-between rounded-lg px-3 py-2 text-sm font-medium text-link hover:bg-surface-2">
+                    {tr('nav.overview')}: {item.label} <Icon name="arrow-right" size={15} />
+                  </a>
+                  <NavTree nodes={item.children} current={current} />
+                </div>
+              </li>
+            ) : (
+              <li>
+                <a href={withBase(item.href)} aria-current={active(item.href) ? 'page' : undefined} class:list={itemClass}>
+                  {item.label}
                 </a>
               </li>
             );
@@ -56,7 +74,7 @@ const current = Astro.url.pathname;
       <ThemeToggle lang={lang} />
       <button
         type="button"
-        class="group inline-flex size-11 items-center justify-center rounded-xl text-muted transition-colors hover:bg-surface-2 hover:text-fg xl:hidden"
+        class="group inline-flex size-11 items-center justify-center rounded-xl text-muted transition-colors hover:bg-surface-2 hover:text-fg lg:hidden"
         data-menu-toggle
         aria-controls="mobile-menu"
         aria-expanded="false"
@@ -70,22 +88,32 @@ const current = Astro.url.pathname;
     </div>
   </div>
 
-  <nav id="mobile-menu" aria-label={tr('nav.main')} class="border-t border-border bg-bg xl:hidden" hidden>
+  <nav id="mobile-menu" aria-label={tr('nav.main')} class="max-h-[calc(100dvh-4rem)] overflow-y-auto border-t border-border bg-bg lg:hidden" hidden>
     <ul class="container-site grid gap-1 py-3">
       {
-        NAV.map((item) => {
-          const active = isActivePath(current, item.href);
-          return (
+        nav.map((item, i) => {
+          const on = containsPath(item, active);
+          const rowClass = [
+            'flex w-full items-center justify-between rounded-xl px-4 py-3 text-base font-medium',
+            on ? 'bg-surface-2 text-fg' : 'text-muted hover:bg-surface-2 hover:text-fg',
+          ];
+          return item.children ? (
+            <li data-submenu>
+              <button type="button" class:list={[rowClass, 'group cursor-pointer']} aria-expanded="false" aria-controls={`m-submenu-${i}`} data-submenu-toggle>
+                {item.label}
+                <Icon name="chevron-down" size={18} class="transition-transform group-aria-expanded:rotate-180" />
+              </button>
+              <div id={`m-submenu-${i}`} hidden data-submenu-panel class="px-2 pb-2">
+                <a href={withBase(item.href)} class="block rounded-lg px-3 py-2 text-sm font-medium text-link hover:bg-surface-2">
+                  {tr('nav.overview')}: {item.label}
+                </a>
+                <NavTree nodes={item.children} current={current} />
+              </div>
+            </li>
+          ) : (
             <li>
-              <a
-                href={withBase(item.href)}
-                aria-current={active ? 'page' : undefined}
-                class:list={[
-                  'flex items-center justify-between rounded-xl px-4 py-3 text-base font-medium',
-                  active ? 'bg-surface-2 text-fg' : 'text-muted hover:bg-surface-2 hover:text-fg',
-                ]}
-              >
-                {tr(item.key)}
+              <a href={withBase(item.href)} aria-current={active(item.href) ? 'page' : undefined} class:list={rowClass}>
+                {item.label}
                 <Icon name="chevron-right" size={18} />
               </a>
             </li>

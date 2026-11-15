@@ -3,6 +3,7 @@ import { defineConfig, fontProviders } from 'astro/config';
 import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
+import { REDIRECTS } from './src/data/redirects.mjs';
 
 /**
  * Endereço público e caminho base.
@@ -27,6 +28,9 @@ export default defineConfig({
   trailingSlash: 'ignore',
   build: { format: 'directory' },
   output: 'static',
+  // URLs antigas (blog, publicações, categorias e tags) → novas. Ver src/data/redirects.mjs.
+  // O Astro não acrescenta o base path ao destino; por isso ele é prefixado aqui.
+  redirects: Object.fromEntries(Object.entries(REDIRECTS).map(([from, to]) => [from, `${BASE_PATH}${to}`])),
 
   integrations: [
     mdx(),

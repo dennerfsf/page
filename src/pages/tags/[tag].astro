@@ -1,0 +1,33 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHeader from '../../components/PageHeader.astro';
+import PostsBySection from '../../components/PostsBySection.astro';
+import { getPosts, tagIndex, type Post } from '../../lib/content';
+import { ROUTES, tagPath } from '../../lib/routes';
+import { slugify } from '../../lib/taxonomy';
+import { withBase } from '../../lib/url';
+
+export async function getStaticPaths() {
+  const posts = await getPosts();
+  return tagIndex(posts).map(({ tag, slug }) => ({
+    params: { tag: slug },
+    props: { tag, posts: posts.filter((p) => p.data.tags.some((t) => slugify(t) === slug)) },
+  }));
+}
+
+interface Props { tag: string; posts: Post[] }
+const { tag, posts } = Astro.props;
+---
+
+<BaseLayout
+  title={`#${tag} — Tags`}
+  description={`Textos marcados com a tag ${tag}.`}
+  crumbs={[
+    { label: 'Tags', href: ROUTES.tags },
+    { label: `#${tag}`, href: tagPath(tag) },
+  ]}
+>
+  <PageHeader eyebrow="Tag" title={`#${tag}`} description={`${posts.length} ${posts.length === 1 ? 'texto' : 'textos'} com esta tag.`} />
+  <PostsBySection posts={posts} />
+  <p class="mt-10"><a class="link" href={withBase(ROUTES.tags)}>Todas as tags</a></p>
+</BaseLayout>

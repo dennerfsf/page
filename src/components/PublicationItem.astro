@@ -3,6 +3,7 @@ import DemoBadge from './DemoBadge.astro';
 import Icon from './Icon.astro';
 import { formatAuthors, type Publication } from '../lib/content';
 import { PUBLICATION_TYPES } from '../lib/taxonomy';
+import { articlePath } from '../lib/routes';
 import { withBase } from '../lib/url';
 
 interface Props {
@@ -13,7 +14,7 @@ interface Props {
 const { pub, headingLevel = 'h3', compact = false } = Astro.props;
 const { title, authors, year, venue, doi, url, pdf, type, keywords, demo } = pub.data;
 const H = headingLevel;
-const href = withBase(`/publicacoes/${pub.id}/`);
+const href = withBase(articlePath(pub));
 ---
 
 <article class="card card-hover print-break-avoid relative p-5 sm:p-6" data-publication data-type={type}>
