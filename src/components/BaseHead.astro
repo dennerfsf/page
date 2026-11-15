@@ -56,11 +56,11 @@ const ogLocale = lang === 'en' ? 'en_US' : 'pt_BR';
 <link rel="canonical" href={canonical} />
 {noindex && <meta name="robots" content="noindex, follow" />}
 
-<link rel="icon" href={withBase('/favicon.svg')} type="image/svg+xml" />
-<link rel="apple-touch-icon" href={withBase('/apple-touch-icon.png')} />
+<link rel="icon" href={withBase('/favicon.svg?v=2')} type="image/svg+xml" />
+<link rel="apple-touch-icon" href={withBase('/apple-touch-icon.png?v=2')} />
 <link rel="manifest" href={withBase('/site.webmanifest')} />
-<meta name="theme-color" content="#0B1120" media="(prefers-color-scheme: dark)" />
-<meta name="theme-color" content="#F8FAFC" media="(prefers-color-scheme: light)" />
+<meta name="theme-color" content="#1B1B1F" media="(prefers-color-scheme: dark)" />
+<meta name="theme-color" content="#F7F7F8" media="(prefers-color-scheme: light)" />
 <link rel="sitemap" href={withBase('/sitemap-index.xml')} />
 <link rel="alternate" type="application/rss+xml" title={`${SITE.title} — Blog`} href={withBase('/rss.xml')} />
 {alternates.map((a) => <link rel="alternate" hreflang={a.lang} href={absoluteUrl(a.href, Astro.site)} />)}

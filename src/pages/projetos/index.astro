@@ -26,14 +26,14 @@ const counts = Object.fromEntries(
     <h2 id="lista-projetos" class="sr-only">Lista de projetos</h2>
     <div class="no-print mb-8" role="group" aria-label="Filtrar projetos por categoria">
       <div class="flex flex-wrap gap-2">
-        <button type="button" class="chip min-h-10 cursor-pointer px-3.5 hover:border-link aria-pressed:border-transparent aria-pressed:bg-primary aria-pressed:text-white" aria-pressed="true" data-cat="">
+        <button type="button" class="chip min-h-10 cursor-pointer px-3.5 hover:border-link aria-pressed:border-transparent aria-pressed:bg-primary aria-pressed:text-on-primary" aria-pressed="true" data-cat="">
           Todos <span class="opacity-70 in-aria-pressed:opacity-100">({projects.length})</span>
         </button>
         {
           PROJECT_CATEGORIES.map((c) => (
             <button
               type="button"
-              class="chip min-h-10 cursor-pointer px-3.5 hover:border-link disabled:cursor-not-allowed disabled:opacity-40 aria-pressed:border-transparent aria-pressed:bg-primary aria-pressed:text-white"
+              class="chip min-h-10 cursor-pointer px-3.5 hover:border-link disabled:cursor-not-allowed disabled:opacity-40 aria-pressed:border-transparent aria-pressed:bg-primary aria-pressed:text-on-primary"
               aria-pressed="false"
               data-cat={slugify(c)}
               disabled={counts[c] === 0}

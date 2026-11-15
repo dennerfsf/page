@@ -18,21 +18,21 @@ const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&l
 
 const og = `<!doctype html><html><head><meta charset="utf-8"><style>
   *{margin:0;box-sizing:border-box}
-  body{width:1200px;height:630px;font-family:'Segoe UI',Inter,Helvetica,Arial,sans-serif;color:#F8FAFC;
+  body{width:1200px;height:630px;font-family:'Segoe UI',Inter,Helvetica,Arial,sans-serif;color:#F5F5F7;
     background:
-      radial-gradient(700px 400px at 10% 0%, rgba(37,99,235,.35), transparent 60%),
-      radial-gradient(600px 380px at 100% 100%, rgba(6,182,212,.25), transparent 60%),
+      radial-gradient(700px 400px at 10% 0%, rgba(37,99,235,.3), transparent 60%),
+      radial-gradient(600px 380px at 100% 100%, rgba(59,130,246,.12), transparent 60%),
       linear-gradient(rgba(148,163,184,.07) 1px, transparent 1px) 0 0/44px 44px,
       linear-gradient(90deg, rgba(148,163,184,.07) 1px, transparent 1px) 0 0/44px 44px,
-      #0B1120;
+      #1B1B1F;
     display:flex;flex-direction:column;justify-content:center;padding:80px 90px}
   .logo{margin-bottom:40px;line-height:0}
   h1{font-size:76px;font-weight:700;letter-spacing:-2px;line-height:1.05}
   p{margin-top:22px;font-size:34px;font-weight:600;max-width:950px;line-height:1.25;
-    background:linear-gradient(100deg,#60A5FA,#22D3EE 70%);-webkit-background-clip:text;color:transparent}
-  .bar{position:absolute;left:0;bottom:0;height:10px;width:100%;background:linear-gradient(90deg,#2563EB,#06B6D4)}
+    background:linear-gradient(100deg,#60A5FA,#93C5FD 70%);-webkit-background-clip:text;color:transparent}
+  .bar{position:absolute;left:0;bottom:0;height:10px;width:100%;background:#2563EB}
 </style></head><body>
-  <div class="logo">${mark('#F8FAFC', 104)}</div>
+  <div class="logo">${mark('#F5F5F7', 104)}</div>
   <h1>${esc(site.name)}</h1>
   <p>${esc(site.description)}</p>
   <div class="bar"></div>

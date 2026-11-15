@@ -15,16 +15,16 @@ const nodes = [
 ---
 
 <div class="relative mx-auto aspect-square w-full max-w-[26rem]" aria-hidden="true">
-  <div class="absolute inset-6 rounded-full bg-gradient-to-br from-[#2563EB]/30 to-[#06B6D4]/20 blur-3xl"></div>
+  <div class="absolute inset-6 rounded-full bg-accent-strong/20 blur-3xl"></div>
   <svg viewBox="0 0 440 440" class="relative size-full">
     <defs>
       <linearGradient id="hv-line" x1="0" x2="1">
-        <stop offset="0" stop-color="#2563EB" />
-        <stop offset="1" stop-color="#06B6D4" />
+        <stop offset="0" style="stop-color: var(--accent-strong)" />
+        <stop offset="1" style="stop-color: var(--link)" />
       </linearGradient>
       <radialGradient id="hv-core" cx=".5" cy=".5" r=".5">
-        <stop offset="0" stop-color="#2563EB" stop-opacity=".35" />
-        <stop offset="1" stop-color="#2563EB" stop-opacity="0" />
+        <stop offset="0" style="stop-color: var(--accent-strong)" stop-opacity=".3" />
+        <stop offset="1" style="stop-color: var(--accent-strong)" stop-opacity="0" />
       </radialGradient>
     </defs>
     <circle cx="220" cy="210" r="190" fill="none" stroke="var(--border-strong)" stroke-dasharray="2 8" class="hv-spin" />
@@ -40,7 +40,7 @@ const nodes = [
       ))
     }
   </svg>
-  <div class="absolute left-1/2 top-[47.7%] grid size-36 -translate-x-1/2 -translate-y-1/2 place-items-center overflow-hidden rounded-full border border-border-strong bg-surface shadow-2xl shadow-blue-900/30">
+  <div class="absolute left-1/2 top-[47.7%] grid size-36 -translate-x-1/2 -translate-y-1/2 place-items-center overflow-hidden rounded-full border border-border-strong bg-surface shadow-2xl shadow-black/20">
     <LogoMark class="size-20 text-fg" />
   </div>
 </div>
