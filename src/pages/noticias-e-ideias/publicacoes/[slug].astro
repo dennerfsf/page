@@ -1,0 +1,14 @@
+---
+import PostLayout from '../../../layouts/PostLayout.astro';
+import { getPosts, type Post } from '../../../lib/content';
+
+export async function getStaticPaths() {
+  const all = await getPosts();
+  const posts = all.filter((p) => p.data.secao === 'publicacoes');
+  return posts.map((post) => ({ params: { slug: post.id }, props: { post, siblings: posts, all } }));
+}
+
+interface Props { post: Post; siblings: Post[]; all: Post[] }
+---
+
+<PostLayout {...Astro.props} />

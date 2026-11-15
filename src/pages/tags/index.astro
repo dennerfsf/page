@@ -1,0 +1,34 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import EmptyState from '../../components/EmptyState.astro';
+import Icon from '../../components/Icon.astro';
+import PageHeader from '../../components/PageHeader.astro';
+import { getPosts, tagIndex } from '../../lib/content';
+import { ROUTES, tagPath } from '../../lib/routes';
+import { withBase } from '../../lib/url';
+
+const tags = tagIndex(await getPosts());
+---
+
+<BaseLayout
+  title="Tags"
+  description="Todas as tags de notícias, publicações e estudos."
+  crumbs={[{ label: 'Tags', href: ROUTES.tags }]}
+>
+  <PageHeader eyebrow="Navegar por" title="Tags" />
+  {
+    tags.length > 0 ? (
+      <ul class="flex flex-wrap gap-2">
+        {tags.map(({ tag, count }) => (
+          <li>
+            <a href={withBase(tagPath(tag))} class="chip hover:border-link hover:text-link">
+              <Icon name="hash" size={13} />{tag} <span class="opacity-70">({count})</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <EmptyState text="As tags aparecem aqui quando houver textos publicados." />
+    )
+  }
+</BaseLayout>

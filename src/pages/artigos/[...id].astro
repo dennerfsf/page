@@ -6,6 +6,7 @@ import DemoNotice from '../../components/DemoNotice.astro';
 import Icon from '../../components/Icon.astro';
 import { formatAuthors, getPublications, type Publication } from '../../lib/content';
 import { scholarlyArticleLd } from '../../lib/seo';
+import { ROUTES, articlePath } from '../../lib/routes';
 import { PUBLICATION_TYPES, slugify } from '../../lib/taxonomy';
 import { absoluteUrl, withBase } from '../../lib/url';
 
@@ -18,7 +19,7 @@ interface Props { pub: Publication }
 const { pub } = Astro.props;
 const { title, authors, year, venue, doi, url, pdf, keywords, type, language, demo } = pub.data;
 const { Content } = await render(pub);
-const pageUrl = absoluteUrl(`/publicacoes/${pub.id}/`, Astro.site);
+const pageUrl = absoluteUrl(articlePath(pub), Astro.site);
 const abstract = (pub.body ?? '').replace(/[#*_`>]/g, '').replace(/\s+/g, ' ').trim();
 
 // Metadados lidos pelo Google Scholar e gerenciadores de referência (Zotero, Mendeley).
@@ -53,8 +54,8 @@ const bibtex = [
   type="article"
   meta={meta}
   crumbs={[
-    { label: 'Publicações', href: '/publicacoes/' },
-    { label: title, href: `/publicacoes/${pub.id}/` },
+    { label: 'Artigos', href: ROUTES.articles },
+    { label: title, href: articlePath(pub) },
   ]}
   schema={[scholarlyArticleLd({ title, authors, year, venue, doi, url: pageUrl, keywords, abstract })]}
 >
@@ -122,7 +123,7 @@ const bibtex = [
     </section>
 
     <p class="mt-12">
-      <a href={withBase('/publicacoes/')} class="inline-flex items-center gap-2 font-medium text-link hover:underline"><Icon name="arrow-left" size={16} /> Toda a produção científica</a>
+      <a href={withBase(ROUTES.articles)} class="inline-flex items-center gap-2 font-medium text-link hover:underline"><Icon name="arrow-left" size={16} /> Todos os artigos</a>
     </p>
   </article>
 </BaseLayout>

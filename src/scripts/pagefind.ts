@@ -41,7 +41,7 @@ export async function search(term: string, limit = 20): Promise<SearchHit[] | nu
   return data.map((d) => ({ url: d.url, title: d.meta.title ?? d.url, excerpt: d.excerpt, section: d.meta.section }));
 }
 
-/** URLs de páginas cujo conteúdo corresponde ao termo, opcionalmente restritas a um prefixo (ex.: "/blog/"). */
+/** URLs de páginas cujo conteúdo corresponde ao termo, opcionalmente restritas a um prefixo (ex.: "/noticias-e-ideias/publicacoes/"). */
 export async function searchContent(term: string, prefix?: string): Promise<string[]> {
   const hits = await search(term, 50);
   if (!hits) return [];

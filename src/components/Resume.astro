@@ -9,6 +9,7 @@ import { profile, socialLinks } from '../data/site';
 import { formatRange, formatYearMonth, l, lList } from '../i18n/format';
 import { t, type Lang } from '../i18n/ui';
 import { formatAuthors, getProjects, getPublications } from '../lib/content';
+import { articlePath } from '../lib/routes';
 import { CV_PAGES } from '../lib/cv';
 import { certifications, education, experience, languages, skills } from '../lib/data';
 import { absoluteUrl, withBase } from '../lib/url';
@@ -166,7 +167,7 @@ const siteUrl = absoluteUrl('/', Astro.site);
             <ol class="space-y-2 text-sm">
               {publications.map((p) => (
                 <li class="print-break-avoid text-fg-soft">
-                  {formatAuthors(p.data.authors)}. <a href={withBase(`/publicacoes/${p.id}/`)} class="font-semibold text-fg">{p.data.title}</a>.{' '}
+                  {formatAuthors(p.data.authors)}. <a href={withBase(articlePath(p))} class="font-semibold text-fg">{p.data.title}</a>.{' '}
                   <em>{p.data.venue}</em>, {p.data.year}.{p.data.doi && ` DOI: ${p.data.doi}.`} <DemoBadge show={p.data.demo} lang={lang} />
                 </li>
               ))}

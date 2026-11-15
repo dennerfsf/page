@@ -1,30 +1,34 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import BlogCard from '../../components/BlogCard.astro';
-import Cover from '../../components/Cover.astro';
-import DemoBadge from '../../components/DemoBadge.astro';
-import Icon from '../../components/Icon.astro';
-import PageHeader from '../../components/PageHeader.astro';
-import { formatDate } from '../../i18n/format';
-import { getPosts, readingTime, tagIndex } from '../../lib/content';
-import { BLOG_CATEGORIES, slugify } from '../../lib/taxonomy';
-import { withBase } from '../../lib/url';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import BlogCard from '../../../components/BlogCard.astro';
+import Cover from '../../../components/Cover.astro';
+import DemoBadge from '../../../components/DemoBadge.astro';
+import Icon from '../../../components/Icon.astro';
+import PageHeader from '../../../components/PageHeader.astro';
+import { formatDate } from '../../../i18n/format';
+import { getPostsBySecao, readingTime, tagIndex } from '../../../lib/content';
+import { ROUTES, categoryPath, postPath } from '../../../lib/routes';
+import { BLOG_CATEGORIES, slugify } from '../../../lib/taxonomy';
+import { withBase } from '../../../lib/url';
 
-const posts = await getPosts();
+const posts = await getPostsBySecao('publicacoes');
 const highlight = posts.find((p) => p.data.featured) ?? posts[0];
 const tags = tagIndex(posts);
 const usedCategories = BLOG_CATEGORIES.filter((c) => posts.some((p) => p.data.category === c));
 ---
 
 <BaseLayout
-  title="Blog — notícias e artigos"
-  description="Artigos, notícias e reflexões sobre dados, inteligência artificial, governança, arquitetura de software e inovação."
-  crumbs={[{ label: 'Blog', href: '/blog/' }]}
+  title="Publicações — Notícias e ideias"
+  description="Textos técnicos e de opinião sobre desenvolvimento de software, dados, computação e tecnologia."
+  crumbs={[
+    { label: 'Notícias e ideias', href: ROUTES.newsIdeas },
+    { label: 'Publicações', href: ROUTES.ideas },
+  ]}
 >
   <PageHeader
-    eyebrow="Blog"
-    title="Notícias e artigos"
-    description="Publicações sobre dados, inteligência artificial, governança, arquitetura de software e inovação."
+    eyebrow="Notícias e ideias"
+    title="Publicações"
+    description="Textos técnicos e de opinião sobre desenvolvimento de software, dados, computação e tecnologia."
   >
     <a href={withBase('/rss.xml')} class="mt-5 inline-flex items-center gap-2 text-sm font-medium text-link hover:underline">
       <Icon name="rss" size={16} /> Assinar o feed RSS
@@ -44,7 +48,7 @@ const usedCategories = BLOG_CATEGORIES.filter((c) => posts.some((p) => p.data.ca
               <DemoBadge show={highlight.data.demo} />
             </div>
             <h3 class="font-display text-2xl font-bold leading-tight text-fg sm:text-3xl">
-              <a href={withBase(`/blog/${highlight.id}/`)} class="after:absolute after:inset-0 after:content-[''] group-hover:text-link">{highlight.data.title}</a>
+              <a href={withBase(postPath(highlight))}class="after:absolute after:inset-0 after:content-[''] group-hover:text-link">{highlight.data.title}</a>
             </h3>
             <p class="text-muted">{highlight.data.description}</p>
             <p class="text-sm text-muted">
@@ -56,7 +60,9 @@ const usedCategories = BLOG_CATEGORIES.filter((c) => posts.some((p) => p.data.ca
     )
   }
 
-  <section aria-labelledby="todos" data-blog-filter>
+  {posts.length === 0 && <p class="card p-8 text-center text-muted" data-section-empty>Em breve: ainda não há publicações.</p>}
+
+  <section aria-labelledby="todos" data-blog-filter hidden={posts.length === 0}>
     <div class="mb-6 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
       <h2 id="todos" class="font-display text-2xl font-bold text-fg">Todas as publicações</h2>
       <p class="text-sm text-muted" role="status" aria-live="polite" data-count>{posts.length} publicações</p>
@@ -107,7 +113,7 @@ const usedCategories = BLOG_CATEGORIES.filter((c) => posts.some((p) => p.data.ca
     <p class="card hidden p-8 text-center text-muted" data-empty>Nenhuma publicação encontrada com esses filtros.</p>
   </section>
 
-  <nav aria-labelledby="cats" class="mt-16">
+  <nav aria-labelledby="cats" class="mt-16" hidden={usedCategories.length === 0}>
     <h2 id="cats" class="mb-4 font-display text-xl font-semibold text-fg">Navegar por categoria</h2>
     <ul class="flex flex-wrap gap-2">
       {
@@ -115,7 +121,7 @@ const usedCategories = BLOG_CATEGORIES.filter((c) => posts.some((p) => p.data.ca
           const n = posts.filter((p) => p.data.category === c).length;
           return (
             <li>
-              <a href={withBase(`/blog/categoria/${slugify(c)}/`)} class="chip hover:border-link hover:text-link">
+              <a href={withBase(categoryPath(c))} class="chip hover:border-link hover:text-link">
                 {c} <span class="opacity-70">({n})</span>
               </a>
             </li>
@@ -127,7 +133,8 @@ const usedCategories = BLOG_CATEGORIES.filter((c) => posts.some((p) => p.data.ca
 </BaseLayout>
 
 <script>
-  import { searchContent } from '../../scripts/pagefind';
+  import { searchContent } from '../../../scripts/pagefind';
+  import { ROUTES } from '../../../lib/routes';
 
   const root = document.querySelector<HTMLElement>('[data-blog-filter]');
   if (root) {
@@ -185,7 +192,7 @@ const usedCategories = BLOG_CATEGORIES.filter((c) => posts.some((p) => p.data.ca
 
     async function updateContentHits() {
       const term = q.value.trim();
-      contentHits = term.length >= 3 ? new Set(await searchContent(term, '/blog/')) : new Set();
+      contentHits = term.length >= 3 ? new Set(await searchContent(term, ROUTES.ideas)) : new Set();
       apply();
     }
 
