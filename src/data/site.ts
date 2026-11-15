@@ -7,8 +7,6 @@ import type { UIKey } from '../i18n/ui';
 
 export const SITE = {
   title: 'Cero',
-  /** Letra exibida no logotipo. */
-  initials: 'C',
   /** Frase curta que acompanha o nome. */
   tagline: 'Software, dados, computação e estudos',
   /** Descrição padrão usada quando a página não define uma. */

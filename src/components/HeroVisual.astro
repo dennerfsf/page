@@ -1,9 +1,9 @@
 ---
 /**
  * Ilustração do hero: um grafo de dados animado de forma discreta.
- * No centro, a inicial do site.
+ * No centro, o símbolo do site.
  */
-import { SITE } from '../data/site';
+import LogoMark from './LogoMark.astro';
 const nodes = [
   { x: 60, y: 90, l: 'SQL' },
   { x: 330, y: 60, l: 'API' },
@@ -41,7 +41,7 @@ const nodes = [
     }
   </svg>
   <div class="absolute left-1/2 top-[47.7%] grid size-36 -translate-x-1/2 -translate-y-1/2 place-items-center overflow-hidden rounded-full border border-border-strong bg-surface shadow-2xl shadow-blue-900/30">
-    <span class="text-gradient font-display text-6xl font-bold">{SITE.initials}</span>
+    <LogoMark class="size-20 text-fg" />
   </div>
 </div>
 
