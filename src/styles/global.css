@@ -6,49 +6,55 @@
 
 /* ------------------------------------------------------------------
  * Tokens de cor
- * Paleta-base: #0B1120 (fundo), #111827 (superfícies), #2563EB (principal),
- * #06B6D4 (secundária), #F8FAFC (texto), #94A3B8 (texto secundário).
- * Tons de texto foram ajustados para contraste WCAG AA em ambos os temas.
+ * Paleta-base: #FFEFB3 (creme) e #013E37 (verde-petróleo).
+ * Tema claro: fundo creme, texto/ações em verde. Tema escuro: invertido.
+ * Tons intermediários derivados das duas cores, com contraste WCAG AA.
  * ------------------------------------------------------------------ */
 :root {
-  --bg: #f8fafc;
-  --surface: #ffffff;
-  --surface-2: #f1f5f9;
-  --fg: #0f172a;
-  --fg-soft: #1e293b;
-  --muted: #475569;
-  --border: #e2e8f0;
-  --border-strong: #cbd5e1;
-  --primary: #2563eb; /* fundos de botão (branco sobre ele: 5.2:1) */
-  --primary-hover: #1d4ed8;
-  --link: #1d4ed8; /* texto/links: 6.7:1 sobre o fundo claro */
-  --accent: #0e7490; /* ciano para texto: 5.4:1 */
-  --accent-strong: #06b6d4; /* ciano decorativo */
-  --glow-1: rgb(37 99 235 / 0.12);
-  --glow-2: rgb(6 182 212 / 0.1);
-  --grid: rgb(15 23 42 / 0.05);
-  --warning-bg: #fef3c7;
+  --bg: #ffefb3;
+  --surface: #fff7d9;
+  --surface-2: #fbe6a0;
+  --fg: #013e37;
+  --fg-soft: #0b4a42;
+  --muted: #3f6b62; /* 5.1:1 sobre o fundo */
+  --border: #ecd88f;
+  --border-strong: #d6bd68;
+  --primary: #013e37; /* fundos de botão */
+  --on-primary: #ffefb3; /* texto sobre o principal: 10.9:1 */
+  --primary-hover: #025a4f;
+  --link: #01564c;
+  --accent: #0a6b5e; /* verde para texto: 5.6:1 */
+  --accent-strong: #138a78; /* verde decorativo */
+  --glow-1: rgb(1 62 55 / 0.1);
+  --glow-2: rgb(19 138 120 / 0.08);
+  --grid: rgb(1 62 55 / 0.06);
+  --selection: rgb(1 62 55 / 0.2);
+  --shadow: rgb(1 62 55 / 0.3);
+  --warning-bg: #fde68a;
   --warning-fg: #78350f;
   color-scheme: light;
 }
 
 .dark {
-  --bg: #0b1120;
-  --surface: #111827;
-  --surface-2: #162036;
-  --fg: #f8fafc;
-  --fg-soft: #e2e8f0;
-  --muted: #94a3b8;
-  --border: #1e293b;
-  --border-strong: #334155;
-  --primary: #2563eb;
-  --primary-hover: #3b82f6;
-  --link: #60a5fa; /* 7.1:1 sobre #0B1120 */
-  --accent: #22d3ee;
-  --accent-strong: #06b6d4;
-  --glow-1: rgb(37 99 235 / 0.22);
-  --glow-2: rgb(6 182 212 / 0.14);
-  --grid: rgb(148 163 184 / 0.07);
+  --bg: #013e37;
+  --surface: #024a42;
+  --surface-2: #03564d;
+  --fg: #ffefb3;
+  --fg-soft: #f6e6ad;
+  --muted: #cfc796; /* 6.6:1 sobre o fundo */
+  --border: #0b5a50;
+  --border-strong: #1b6f63;
+  --primary: #ffefb3;
+  --on-primary: #013e37;
+  --primary-hover: #fff6d6;
+  --link: #ffe38a;
+  --accent: #f3d77a;
+  --accent-strong: #e6c55a;
+  --glow-1: rgb(255 239 179 / 0.1);
+  --glow-2: rgb(230 197 90 / 0.08);
+  --grid: rgb(255 239 179 / 0.06);
+  --selection: rgb(255 239 179 / 0.3);
+  --shadow: rgb(0 20 18 / 0.5);
   --warning-bg: #422006;
   --warning-fg: #fde68a;
   color-scheme: dark;
@@ -65,6 +71,7 @@
   --color-border-strong: var(--border-strong);
   --color-primary: var(--primary);
   --color-primary-hover: var(--primary-hover);
+  --color-on-primary: var(--on-primary);
   --color-link: var(--link);
   --color-accent: var(--accent);
   --color-accent-strong: var(--accent-strong);
@@ -97,7 +104,7 @@
     text-wrap: balance;
   }
   p { text-wrap: pretty; }
-  ::selection { background: rgb(37 99 235 / 0.3); }
+  ::selection { background: var(--selection); }
 
   :focus-visible {
     outline: 2px solid var(--accent-strong);
@@ -138,7 +145,7 @@
   .card-hover:hover {
     border-color: color-mix(in oklab, var(--primary) 55%, var(--border));
     transform: translateY(-2px);
-    box-shadow: 0 12px 32px -16px rgb(37 99 235 / 0.35);
+    box-shadow: 0 12px 32px -16px var(--shadow);
   }
 
   .btn {
@@ -154,7 +161,7 @@
     transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
   }
   .btn:active { transform: translateY(1px); }
-  .btn-primary { background: var(--primary); color: #fff; }
+  .btn-primary { background: var(--primary); color: var(--on-primary); }
   .btn-primary:hover { background: var(--primary-hover); }
   .btn-ghost { border: 1px solid var(--border-strong); color: var(--fg); background: transparent; }
   .btn-ghost:hover { border-color: var(--link); color: var(--link); }
