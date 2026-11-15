@@ -41,7 +41,7 @@ const {
 } = Astro.props as HeadProps;
 
 const isHome = Astro.url.pathname.replace(/\/+$/, '') === import.meta.env.BASE_URL.replace(/\/+$/, '');
-const fullTitle = isHome ? `${profile.name} — ${profile.headline.pt}` : `${title} · ${SITE.title}`;
+const fullTitle = isHome ? `${SITE.title} — ${SITE.tagline}` : `${title} · ${SITE.title}`;
 const canonical = new URL(Astro.url.pathname, Astro.site ?? Astro.url).toString();
 const ogImage = absoluteUrl(image, Astro.site);
 const ogLocale = lang === 'en' ? 'en_US' : 'pt_BR';

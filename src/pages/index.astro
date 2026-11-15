@@ -1,18 +1,15 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import BlogCard from '../components/BlogCard.astro';
-import DemoBadge from '../components/DemoBadge.astro';
 import HeroVisual from '../components/HeroVisual.astro';
 import Icon from '../components/Icon.astro';
 import ProjectCard from '../components/ProjectCard.astro';
 import PublicationItem from '../components/PublicationItem.astro';
 import SectionHeading from '../components/SectionHeading.astro';
-import SocialLinks from '../components/SocialLinks.astro';
-import { profile } from '../data/site';
-import { formatRange, l } from '../i18n/format';
+import { SITE, profile } from '../data/site';
+import { l } from '../i18n/format';
 import { getPosts, getProjects, getPublications } from '../lib/content';
-import { experience } from '../lib/data';
-import { personLd, websiteLd } from '../lib/seo';
+import { websiteLd } from '../lib/seo';
 import { withBase } from '../lib/url';
 
 const posts = (await getPosts()).slice(0, 3);
@@ -20,79 +17,54 @@ const allProjects = await getProjects();
 const projects = (allProjects.some((p) => p.data.featured) ? allProjects.filter((p) => p.data.featured) : allProjects).slice(0, 3);
 const pubs = await getPublications();
 const featuredPubs = (pubs.some((p) => p.data.featured) ? pubs.filter((p) => p.data.featured) : pubs).slice(0, 2);
-const recentExperience = experience.slice(0, 3);
 ---
 
-<BaseLayout title={profile.name} description={l(profile.summary)} type="profile" schema={[websiteLd(Astro.site), personLd(Astro.site)]} bare>
+<BaseLayout title={SITE.title} description={SITE.description} schema={[websiteLd(Astro.site)]} bare>
   <!-- Hero -->
   <section class="bg-grid relative overflow-hidden border-b border-border" aria-labelledby="hero-title">
     <div class="container-site grid items-center gap-12 py-16 sm:py-24 lg:grid-cols-[1.25fr_1fr] lg:py-28">
       <div>
         <p class="eyebrow mb-5 inline-flex items-center gap-2">
           <span class="relative flex size-2"><span class="absolute inline-flex size-full animate-ping rounded-full bg-accent-strong opacity-60 motion-reduce:hidden"></span><span class="relative inline-flex size-2 rounded-full bg-accent-strong"></span></span>
-          {l(profile.availability)}
+          {SITE.tagline}
         </p>
         <h1 id="hero-title" class="font-display text-5xl font-bold leading-[1.05] tracking-tight text-fg sm:text-6xl lg:text-7xl">
-          {profile.name}
+          {SITE.title}
         </h1>
-        <p class="text-gradient mt-4 font-display text-2xl font-semibold leading-snug sm:text-3xl">{l(profile.headline)}</p>
-        <p class="mt-6 max-w-2xl text-lg leading-relaxed text-muted">{l(profile.summary)}</p>
+        <p class="text-gradient mt-4 font-display text-2xl font-semibold leading-snug sm:text-3xl">
+          Conteúdo sobre software, dados, computação e estudos
+        </p>
+        <p class="mt-6 max-w-2xl text-lg leading-relaxed text-muted">
+          Esta página reúne assuntos e informações sobre desenvolvimento de software, engenharia de dados e analytics, ciência da computação e estudos.
+        </p>
         <div class="mt-9 flex flex-wrap gap-3">
-          <a href={withBase('/curriculo/')} class="btn btn-primary"><Icon name="file-text" size={18} /> Ver currículo</a>
+          <a href={withBase('/blog/')} class="btn btn-primary"><Icon name="book" size={18} /> Ler o blog</a>
           <a href={withBase('/projetos/')} class="btn btn-ghost"><Icon name="layers" size={18} /> Projetos</a>
-          <a href={withBase('/contato/')} class="btn btn-ghost"><Icon name="mail" size={18} /> Contato</a>
+          <a href={withBase('/busca/')} class="btn btn-ghost"><Icon name="search" size={18} /> Buscar</a>
         </div>
-        <SocialLinks class="mt-8" />
       </div>
       <HeroVisual />
     </div>
   </section>
 
   <div class="container-site space-y-24 py-20 sm:space-y-32 sm:py-28">
-    <!-- Sobre -->
-    <section aria-labelledby="sobre" class="reveal grid gap-10 lg:grid-cols-[1fr_1.4fr]">
-      <div>
-        <p class="eyebrow mb-2">Sobre mim</p>
-        <h2 id="sobre" class="font-display text-3xl font-bold tracking-tight text-fg sm:text-4xl">Engenharia, dados e IA a serviço de decisões melhores</h2>
-      </div>
-      <div class="space-y-4 text-lg leading-relaxed text-fg-soft">
-        {profile.bio.slice(0, 1).map((p) => <p>{l(p)}</p>)}
-        <p class="text-muted">{l(profile.vision)}</p>
-        <a href={withBase('/sobre/')} class="group inline-flex items-center gap-1.5 text-base font-semibold text-link">
-          Conheça minha trajetória <Icon name="arrow-right" size={16} class="transition-transform group-hover:translate-x-0.5" />
-        </a>
-      </div>
-    </section>
-
-    <!-- Especialização -->
-    <section aria-labelledby="areas" class="reveal">
-      <SectionHeading eyebrow="Especialização" title="Áreas de atuação" id="areas" link={{ href: '/competencias/', label: 'Todas as competências' }} />
-      <ul class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+    <!-- Temas -->
+    <section aria-labelledby="temas" class="reveal">
+      <SectionHeading eyebrow="Temas" title="O que você encontra aqui" id="temas" link={{ href: '/blog/', label: 'Todos os artigos' }} />
+      <ul class="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
         {
-          profile.expertise.map((e) => (
+          SITE.topics.map((t) => (
             <li class="card card-hover p-6">
               <span class="mb-4 grid size-11 place-items-center rounded-xl bg-gradient-to-br from-[#2563EB]/15 to-[#06B6D4]/15 text-accent">
-                <Icon name={e.icon} size={22} />
+                <Icon name={t.icon} size={22} />
               </span>
-              <h3 class="font-display text-lg font-semibold text-fg">{l(e.title)}</h3>
-              <p class="mt-2 text-sm leading-relaxed text-muted">{l(e.text)}</p>
+              <h3 class="font-display text-lg font-semibold text-fg">{t.title}</h3>
+              <p class="mt-2 text-sm leading-relaxed text-muted">{t.text}</p>
             </li>
           ))
         }
       </ul>
     </section>
-
-    <!-- Projetos -->
-    {
-      projects.length > 0 && (
-        <section aria-labelledby="projetos" class="reveal">
-          <SectionHeading eyebrow="Portfólio" title="Projetos em destaque" id="projetos" link={{ href: '/projetos/', label: 'Ver todos os projetos' }} />
-          <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {projects.map((p) => <ProjectCard project={p} />)}
-          </div>
-        </section>
-      )
-    }
 
     <!-- Blog -->
     {
@@ -106,41 +78,41 @@ const recentExperience = experience.slice(0, 3);
       )
     }
 
-    <!-- Experiência + Produção científica -->
-    <div class="reveal grid gap-16 lg:grid-cols-2 lg:gap-12">
-      <section aria-labelledby="experiencia">
-        <SectionHeading eyebrow="Trajetória" title="Experiência" id="experiencia" link={{ href: '/curriculo/', label: 'Currículo completo' }} />
-        <ol class="relative space-y-6 border-l border-border pl-6">
-          {
-            recentExperience.map((e) => (
-              <li class="relative">
-                <span class="absolute -left-[1.85rem] top-1.5 size-3 rounded-full border-2 border-bg bg-accent-strong" />
-                <p class="font-mono text-xs text-muted">{formatRange(e.start, e.end)}</p>
-                <h3 class="mt-1 flex flex-wrap items-center gap-2 font-display text-lg font-semibold text-fg">{l(e.role)} <DemoBadge show={e.demo} /></h3>
-                <p class="text-sm font-medium text-accent">{e.organization}</p>
-                {e.summary && <p class="mt-1.5 text-sm text-muted">{l(e.summary)}</p>}
-              </li>
-            ))
-          }
-        </ol>
-      </section>
+    <!-- Projetos -->
+    {
+      projects.length > 0 && (
+        <section aria-labelledby="projetos" class="reveal">
+          <SectionHeading eyebrow="Projetos" title="Projetos em destaque" id="projetos" link={{ href: '/projetos/', label: 'Ver todos os projetos' }} />
+          <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {projects.map((p) => <ProjectCard project={p} />)}
+          </div>
+        </section>
+      )
+    }
 
-      <section aria-labelledby="ciencia">
-        <SectionHeading eyebrow="Pesquisa" title="Produção científica" id="ciencia" link={{ href: '/publicacoes/', label: 'Todas as publicações' }} />
-        <div class="grid gap-4">
-          {featuredPubs.map((p) => <PublicationItem pub={p} compact />)}
-        </div>
-      </section>
-    </div>
+    <!-- Pesquisa -->
+    {
+      featuredPubs.length > 0 && (
+        <section aria-labelledby="ciencia" class="reveal">
+          <SectionHeading eyebrow="Pesquisa" title="Produção científica" id="ciencia" link={{ href: '/publicacoes/', label: 'Todas as publicações' }} />
+          <div class="grid gap-4 lg:grid-cols-2">
+            {featuredPubs.map((p) => <PublicationItem pub={p} compact />)}
+          </div>
+        </section>
+      )
+    }
 
-    <!-- CTA -->
-    <section aria-labelledby="cta" class="reveal">
-      <div class="bg-grid relative overflow-hidden rounded-3xl border border-border p-8 text-center sm:p-14">
-        <h2 id="cta" class="mx-auto max-w-2xl font-display text-3xl font-bold tracking-tight text-fg sm:text-4xl">Contato</h2>
-        <p class="mx-auto mt-4 max-w-xl text-muted">Entre em contato para mais informações</p>
-        <div class="mt-8 flex flex-wrap justify-center gap-3">
-          <a href={withBase('/contato/')} class="btn btn-primary"><Icon name="mail" size={18} /> Entrar em contato</a>
-          <a href={withBase('/curriculo/')} class="btn btn-ghost"><Icon name="download" size={18} /> Baixar currículo</a>
+    <!-- Autor -->
+    <section aria-labelledby="autor" class="reveal">
+      <div class="bg-grid relative overflow-hidden rounded-3xl border border-border p-8 sm:p-14">
+        <p class="eyebrow mb-2">Sobre o autor</p>
+        <h2 id="autor" class="font-display text-3xl font-bold tracking-tight text-fg sm:text-4xl">{profile.name}</h2>
+        <p class="mt-2 font-medium text-accent">{l(profile.headline)}</p>
+        <p class="mt-4 max-w-2xl text-muted">{l(profile.summary)}</p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href={withBase('/sobre/')} class="btn btn-primary"><Icon name="users" size={18} /> Sobre</a>
+          <a href={withBase('/curriculo/')} class="btn btn-ghost"><Icon name="file-text" size={18} /> Currículo</a>
+          <a href={withBase('/contato/')} class="btn btn-ghost"><Icon name="mail" size={18} /> Contato</a>
         </div>
       </div>
     </section>

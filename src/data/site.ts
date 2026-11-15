@@ -1,14 +1,26 @@
 /**
  * Configuração do site: navegação, perfis externos e metadados.
- * Dados pessoais ficam em src/data/profile.json.
+ * Dados pessoais (autor) ficam em src/data/profile.json.
  */
 import profile from './profile.json';
 import type { UIKey } from '../i18n/ui';
 
 export const SITE = {
-  title: profile.name,
+  title: 'Cero',
+  /** Letra exibida no logotipo. */
+  initials: 'C',
+  /** Frase curta que acompanha o nome. */
+  tagline: 'Software, dados, computação e estudos',
   /** Descrição padrão usada quando a página não define uma. */
-  description: profile.summary.pt,
+  description:
+    'Cero reúne assuntos e informações sobre desenvolvimento de software, engenharia de dados e analytics, ciência da computação e estudos.',
+  /** Temas do site, exibidos na página inicial. */
+  topics: [
+    { icon: 'code', title: 'Desenvolvimento de software', text: 'Arquitetura, boas práticas, APIs, integrações e ferramentas para construir sistemas.' },
+    { icon: 'database', title: 'Engenharia de dados e analytics', text: 'Pipelines, modelagem, governança, BI e análise de dados para apoiar decisões.' },
+    { icon: 'cpu', title: 'Ciência da computação', text: 'Algoritmos, estruturas de dados, inteligência artificial e fundamentos da computação.' },
+    { icon: 'book', title: 'Estudos', text: 'Anotações, resumos, trilhas de aprendizado e materiais de referência.' },
+  ],
   locale: 'pt_BR',
   /** Imagem padrão para compartilhamento (1200×630), em public/. */
   ogImage: '/og-default.png',

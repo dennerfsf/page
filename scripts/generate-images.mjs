@@ -1,14 +1,17 @@
 /**
  * Gera public/og-default.png (1200×630) e public/apple-touch-icon.png (180×180)
- * a partir de HTML, usando o nome e o título de src/data/profile.json.
+ * a partir de HTML, com o nome e a descrição do site (mantenha em sincronia com src/data/site.ts).
  *
- * Uso: npm run images   (rode novamente após mudar nome/título)
+ * Uso: npm run images   (rode novamente após mudar nome/descrição)
  */
-import { readFile } from 'node:fs/promises';
 import { chromium } from 'playwright-core';
 import { findBrowser } from './browser.mjs';
 
-const profile = JSON.parse(await readFile(new URL('../src/data/profile.json', import.meta.url), 'utf8'));
+const site = {
+  name: 'Cero',
+  initials: 'C',
+  description: 'Desenvolvimento de software, engenharia de dados e analytics, ciência da computação e estudos',
+};
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 
 const og = `<!doctype html><html><head><meta charset="utf-8"><style>
@@ -28,9 +31,9 @@ const og = `<!doctype html><html><head><meta charset="utf-8"><style>
     background:linear-gradient(100deg,#60A5FA,#22D3EE 70%);-webkit-background-clip:text;color:transparent}
   .bar{position:absolute;left:0;bottom:0;height:10px;width:100%;background:linear-gradient(90deg,#2563EB,#06B6D4)}
 </style></head><body>
-  <div class="logo">${esc(profile.initials)}</div>
-  <h1>${esc(profile.name)}</h1>
-  <p>${esc(profile.headline.pt ?? profile.headline)}</p>
+  <div class="logo">${esc(site.initials)}</div>
+  <h1>${esc(site.name)}</h1>
+  <p>${esc(site.description)}</p>
   <div class="bar"></div>
 </body></html>`;
 
@@ -38,7 +41,7 @@ const icon = `<!doctype html><html><head><meta charset="utf-8"><style>
   *{margin:0}body{width:180px;height:180px;display:grid;place-items:center;
   background:linear-gradient(135deg,#2563EB,#06B6D4);font-family:'Segoe UI',Helvetica,Arial,sans-serif;
   color:#fff;font-weight:700;font-size:76px}
-</style></head><body>${esc(profile.initials)}</body></html>`;
+</style></head><body>${esc(site.initials)}</body></html>`;
 
 const executablePath = findBrowser();
 if (!executablePath) {

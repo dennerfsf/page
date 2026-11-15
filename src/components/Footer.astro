@@ -2,8 +2,7 @@
 import Icon from './Icon.astro';
 import Logo from './Logo.astro';
 import SocialLinks from './SocialLinks.astro';
-import { NAV, profile } from '../data/site';
-import { l } from '../i18n/format';
+import { NAV, SITE, profile } from '../data/site';
 import { t, type Lang } from '../i18n/ui';
 import { withBase } from '../lib/url';
 
@@ -17,7 +16,7 @@ const year = new Date().getFullYear();
   <div class="container-site grid gap-10 py-14 md:grid-cols-[1.5fr_1fr_1fr_1fr]">
     <div class="space-y-4">
       <Logo />
-      <p class="max-w-sm text-sm leading-relaxed text-muted">{l(profile.headline, lang)}</p>
+      <p class="max-w-sm text-sm leading-relaxed text-muted">{SITE.description}</p>
       <SocialLinks />
     </div>
 
@@ -76,7 +75,7 @@ const year = new Date().getFullYear();
 
   <div class="border-t border-border">
     <div class="container-site flex flex-col gap-2 py-6 text-xs text-muted sm:flex-row sm:items-center sm:justify-between">
-      <p>© {year} {profile.name}. {tr('footer.rights')}</p>
+      <p>© {year} {SITE.title} · {profile.name}. {tr('footer.rights')}</p>
       <p>{tr('footer.built')}</p>
     </div>
   </div>

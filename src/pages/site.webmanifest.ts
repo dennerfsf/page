@@ -1,10 +1,10 @@
-import { SITE, profile } from '../data/site';
+import { SITE } from '../data/site';
 import { withBase } from '../lib/url';
 
 export function GET() {
   const manifest = {
-    name: `${profile.name} — ${profile.headline.pt}`,
-    short_name: profile.name,
+    name: `${SITE.title} — ${SITE.tagline}`,
+    short_name: SITE.title,
     description: SITE.description,
     lang: 'pt-BR',
     start_url: withBase('/'),
